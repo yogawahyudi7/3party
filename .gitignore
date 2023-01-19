@@ -1,0 +1,14 @@
+/logs/*.log
+/logs/callback-status-logs/*.log
+/logs/clients/*.log
+/logs/clients/*/*.log
+/logs/partnership-member/*.log
+/logs/partnerships/*.log
+/logs/prakarsa/*.log
+/logs/services/*.log
+/logs/services/*/*.log
+/logs/upload-cloud/*.log
+/logs/upload-cloud/*/*.log
+/vendor
+go.sum
+.env

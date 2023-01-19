@@ -1,0 +1,43 @@
+syntax = "proto3";
+
+package proto;
+
+option go_package = "3party/proto/openapi";
+
+message TestingRequest {
+    string text = 1;
+}
+
+message TestingResponse {
+    string result = 1;
+}
+
+message VerificationSIKPRequest {
+    string userId = 1;
+    string ktpNumber = 2;
+}
+
+message VerificationSIKPReponse {
+    int64 status = 1;
+    string message = 2;
+    string messageLocal = 3;
+
+    EmbedDataVerificationSIKP EmbedDataVerificationSIKP = 4;
+}
+message EmbedDataVerificationSIKP {
+    int64 statusCode = 1;
+    string statusDescription = 2;
+    dataSIKP dataSIKP = 3;
+}
+message dataSIKP {
+    string bankCode = 1;
+    string uploadDate = 2;
+}
+
+//SERVICE START
+service ThirdPartyService {
+    rpc Testing (TestingRequest) returns (TestingResponse);
+
+    //SIKP
+    rpc VerificationSIKP (VerificationSIKPRequest) returns (VerificationSIKPReponse);
+}
