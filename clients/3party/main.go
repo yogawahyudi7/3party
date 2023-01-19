@@ -263,7 +263,7 @@ func routerMain() http.Handler {
 				if response.GetStatus() == 200 {
 					if statusCode == 12 && statusDescription == "Data ditemukan" {
 						if data.GetBankCode() == "494" {
-							statusDescription = "NIK " + ktpNumber + " telah terdaftar di SIKP sebagai debitur Bank BRI AGRO."
+							statusDescription = "NIK telah terdaftar di SIKP sebagai debitur Bank BRI AGRO."
 							ctx.JSON(http.StatusOK, gin.H{
 								// "StatusCode":        1,
 								// "StatusDescription": "NIK " + ktpNumber + " telah terdaftar di SIKP sebagai debitur Bank BRI AGRO",
@@ -279,7 +279,7 @@ func routerMain() http.Handler {
 							})
 							return
 						} else {
-							statusDescription = "NIK " + ktpNumber + " telah terdaftar di SIKP sebagai debitur Bank Lain."
+							statusDescription = "NIK telah terdaftar di SIKP sebagai debitur Bank Lain."
 							ctx.JSON(http.StatusOK, gin.H{
 								// "StatusCode":        -1,
 								// "StatusDescription": "NIK " + ktpNumber + " telah terdaftar di SIKP sebagai debitur Bank Lain",
@@ -296,7 +296,7 @@ func routerMain() http.Handler {
 							return
 						}
 					} else if statusCode == 15 && statusDescription == "Data ditemukan (Penyalur Lain)" {
-						statusDescription = "NIK " + ktpNumber + " telah terdaftar di SIKP sebagai debitur Bank Lain."
+						statusDescription = "NIK telah terdaftar di SIKP sebagai debitur Bank Lain."
 						ctx.JSON(http.StatusOK, gin.H{
 							// "StatusCode":        -1,
 							// "StatusDescription": "NIK " + ktpNumber + " telah terdaftar di SIKP sebagai debitur Bank Lain",
@@ -312,7 +312,7 @@ func routerMain() http.Handler {
 						})
 						return
 					} else if statusCode == 07 && statusDescription == "Data tidak ditemukan" {
-						statusDescription = "NIK " + ktpNumber + " belum terdaftar di SIKP."
+						statusDescription = "NIK belum terdaftar di SIKP."
 						ctx.JSON(http.StatusOK, gin.H{
 							// "StatusCode":        0,
 							// "StatusDescription": "NIK " + ktpNumber + " belum terdaftar di SIKP",
