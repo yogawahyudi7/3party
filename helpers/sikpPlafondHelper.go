@@ -16,46 +16,56 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type CurlVerifySIKPParams struct {
+type CurlPlafondSIKPParams struct {
 	NIK string
 }
 
-type CurlVerifySIKPResponse struct {
+type CurlPlafondSIKPResponse struct {
 	Status       int
 	Message      string
 	MessageLocal string
 }
 
-type CurlVerifySIKPMapping struct {
-	XMLName xml.Name `xml:"Envelope"`
-	Body    Body     `xml:"Body"`
+type CurlPlafondSIKPMapping struct {
+	XMLName xml.Name        `xml:"Envelope"`
+	Body    BodyPlafondSIKP `xml:"Body"`
 }
 
-type Body struct {
-	XMLName  xml.Name `xml:"Body"`
-	Response Response `xml:"get_SIKP_Calon_satuanResponse"`
+type BodyPlafondSIKP struct {
+	XMLName  xml.Name            `xml:"Body"`
+	Response ResponsePlafondSIKP `xml:"get_SIKP_PlafonResponse"`
 }
 
-type Response struct {
-	XMLName xml.Name `xml:"get_SIKP_Calon_satuanResponse"`
-	Result  Result   `xml:"get_SIKP_Calon_satuanResult"`
+type ResponsePlafondSIKP struct {
+	XMLName xml.Name          `xml:"get_SIKP_PlafonResponse"`
+	Result  ResultPlafondSIKP `xml:"get_SIKP_PlafonResult"`
 }
 
-type Result struct {
-	XMLName xml.Name `xml:"get_SIKP_Calon_satuanResult"`
-	Error   bool     `xml:"error"`
-	Code    string   `xml:"code"`
-	Message string   `xml:"message"`
-	Data    Data     `xml:"data"`
+type ResultPlafondSIKP struct {
+	XMLName xml.Name        `xml:"get_SIKP_PlafonResult"`
+	Error   bool            `xml:"error"`
+	Code    string          `xml:"code"`
+	Message string          `xml:"message"`
+	Data    DataPlafondSIKP `xml:"data"`
 }
 
-type Data struct {
-	XMLName    xml.Name `xml:"data"`
-	KodeBank   string   `xml:"kode_bank"`
-	UploadDate string   `xml:"tgl_upload"`
+type DataPlafondSIKP struct {
+	XMLName     xml.Name           `xml:"data"`
+	DataPlafond []DataPlafondsSIKP `xml:"data_plafon"`
 }
 
-func CurlVerifySIKP(params CurlVerifySIKPParams) (response CurlVerifySIKPResponse, data CurlVerifySIKPMapping) {
+type DataPlafondsSIKP struct {
+	XMLName           xml.Name `xml:"data_plafon"`
+	Nik               string   `xml:"nik"`
+	Skema             string   `xml:"skema"`
+	TotalLimitDefault string   `xml:"total_limit_default"`
+	TotalLimit        string   `xml:"total_limit"`
+	LimitAktifDefault string   `xml:"limit_aktif_default"`
+	LimitAktif        string   `xml:"limit_aktif"`
+	KodeBank          string   `xml:"kode_bank"`
+}
+
+func CurlPlafondSIKP(params CurlPlafondSIKPParams) (response CurlPlafondSIKPResponse, data CurlPlafondSIKPMapping) {
 	t := time.Now()
 	formatDate := t.Format("20060102")
 	logJoin := []string{"logs", "/", "log", "-", formatDate, ".log"}
@@ -77,7 +87,7 @@ func CurlVerifySIKP(params CurlVerifySIKPParams) (response CurlVerifySIKPRespons
 	queryStringJoin := []string{firstEndpoint, "/SIKP_Service.asmx"}
 	endpoint := strings.Join(queryStringJoin, "")
 
-	log.Println("--ENDPOINT API SIKP VERIFY--")
+	log.Println("--ENDPOINT API PLAFOND SIKP--")
 	log.Println(endpoint)
 
 	transCfg := Config.TransportConfig
@@ -91,7 +101,7 @@ func CurlVerifySIKP(params CurlVerifySIKPParams) (response CurlVerifySIKPRespons
 	xmlnSchemeXsd := `xmlns:xsd="http://www.w3.org/2001/XMLSchema" `
 	xmlnSoap := `xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"`
 	nik := params.NIK
-	get := `<get_SIKP_Calon_satuan xmlns="http://tempuri.org/"><id>` + nik + `</id></get_SIKP_Calon_satuan>`
+	get := `<get_SIKP_Plafon xmlns="http://tempuri.org/"><id>` + nik + `</id></get_SIKP_Plafon>`
 	body := `<soap:Envelope ` + xmlnSchemeXsi + xmlnSchemeXsd + xmlnSoap + `><soap:Body>` + get + `</soap:Body></soap:Envelope>`
 
 	fmt.Println(body)
@@ -99,13 +109,13 @@ func CurlVerifySIKP(params CurlVerifySIKPParams) (response CurlVerifySIKPRespons
 
 	//ERROR REQUEST
 	if err != nil {
-		log.Println("Helper -- ERROR REQUEST CURL SIKP VERIFY ---")
-		log.Println("Helper -- ERROR REQUEST CURL SIKP VERIFY : ", err.Error())
+		log.Println("Helper -- ERROR REQUEST CURL PLAFOND SIKP ---")
+		log.Println("Helper -- ERROR REQUEST CURL PLAFOND SIKP : ", err.Error())
 
 		joinString := []string{"Status Code : ", "-", " | Error : ", err.Error()}
 		erorrMessage := strings.Join(joinString, "")
 
-		response := CurlVerifySIKPResponse{
+		response := CurlPlafondSIKPResponse{
 			Status:       500,
 			Message:      Constants.ErorrGeneralMessage,
 			MessageLocal: erorrMessage,
@@ -121,13 +131,13 @@ func CurlVerifySIKP(params CurlVerifySIKPParams) (response CurlVerifySIKPRespons
 
 	//ERROR CURL
 	if err != nil {
-		log.Println("Helper -- ERROR HIT API CURL SIKP VERIFY ---")
-		log.Println("Helper -- ERROR HIT API CURL SIKP VERIFY : ", err.Error())
+		log.Println("Helper -- ERROR HIT API CURL PLAFOND SIKP ---")
+		log.Println("Helper -- ERROR HIT API CURL PLAFOND SIKP : ", err.Error())
 
 		joinString := []string{"Status Code : ", "-", " | Error : ", err.Error()}
 		erorrMessage := strings.Join(joinString, "")
 
-		response := CurlVerifySIKPResponse{
+		response := CurlPlafondSIKPResponse{
 			Status:       500,
 			Message:      Constants.ErorrGeneralMessage,
 			MessageLocal: erorrMessage,
@@ -138,20 +148,20 @@ func CurlVerifySIKP(params CurlVerifySIKPParams) (response CurlVerifySIKPRespons
 
 	defer curlResponse.Body.Close()
 
-	log.Println("Helper -- RESPONSE STATUS CURL SIKP VERIFY : ", curlResponse.Status)
-	log.Println("Helper -- RESPONSE HEADERS CURL SIKP VERIFY : ", curlResponse.Header)
-	log.Println("Helper -- REQUEST URL CURL SIKP VERIFY : ", curlResponse.Request.URL)
-	log.Println("Helper -- REQUEST CONTENT LENGTH CURL SIKP VERIFY : ", curlResponse.Request.ContentLength)
+	log.Println("Helper -- RESPONSE STATUS CURL PLAFOND SIKP : ", curlResponse.Status)
+	log.Println("Helper -- RESPONSE HEADERS CURL PLAFOND SIKP : ", curlResponse.Header)
+	log.Println("Helper -- REQUEST URL CURL PLAFOND SIKP : ", curlResponse.Request.URL)
+	log.Println("Helper -- REQUEST CONTENT LENGTH CURL PLAFOND SIKP : ", curlResponse.Request.ContentLength)
 
 	//ERROR STATUS CODE
 	if curlResponse.StatusCode != 200 {
-		// log.Println("Helper --- ERROR STATUS CODE CURL SIKP VERIFY ---")
-		// log.Println("Helper --- ERROR STATUS CODE CURL SIKP VERIFY : ", curlResponse.StatusCode)
+		// log.Println("Helper --- ERROR STATUS CODE CURL PLAFOND SIKP ---")
+		// log.Println("Helper --- ERROR STATUS CODE CURL PLAFOND SIKP : ", curlResponse.StatusCode)
 
 		joinString := []string{"Status Code : ", "-", " | Error : ", err.Error()}
 		erorrMessage := strings.Join(joinString, "")
 
-		response := CurlVerifySIKPResponse{
+		response := CurlPlafondSIKPResponse{
 			Status:       500,
 			Message:      Constants.ErorrGeneralMessage,
 			MessageLocal: erorrMessage,
@@ -162,10 +172,10 @@ func CurlVerifySIKP(params CurlVerifySIKPParams) (response CurlVerifySIKPRespons
 
 	xml.NewDecoder(curlResponse.Body).Decode(&data)
 
-	// log.Println("Helper --- DATA DECODE CURL SIKP VERIFY ---")
+	// log.Println("Helper --- DATA DECODE CURL PLAFOND SIKP ---")
 	// log.Println(data)
 
-	response = CurlVerifySIKPResponse{
+	response = CurlPlafondSIKPResponse{
 		Status:       200,
 		Message:      "Response Success",
 		MessageLocal: "Response 200 Success",

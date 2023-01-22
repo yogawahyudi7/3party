@@ -226,8 +226,10 @@ func routerMain() http.Handler {
 
 			userId := ctx.DefaultPostForm("userId", "")
 			ktpNumber := ctx.DefaultPostForm("ktpNumber", "")
+
 			fmt.Println("ISER ID", userId)
-			fmt.Println("ISER ID", ktpNumber)
+			fmt.Println("KTP NUMBER", ktpNumber)
+
 			req := &pb.VerificationSIKPRequest{
 				UserId:    userId,
 				KtpNumber: ktpNumber,
@@ -256,7 +258,7 @@ func routerMain() http.Handler {
 
 				statusCode := response.GetEmbedDataVerificationSIKP().GetStatusCode()
 				statusDescription := response.GetEmbedDataVerificationSIKP().GetStatusDescription()
-				data := response.GetEmbedDataVerificationSIKP().GetDataSIKP()
+				data := response.GetEmbedDataVerificationSIKP().GetDataVerificationSIKP()
 				bankCode := data.GetBankCode()
 				uploadDate := data.GetUploadDate()
 

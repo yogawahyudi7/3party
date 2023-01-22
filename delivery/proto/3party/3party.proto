@@ -27,9 +27,33 @@ message VerificationSIKPReponse {
 message EmbedDataVerificationSIKP {
     int64 statusCode = 1;
     string statusDescription = 2;
-    dataSIKP dataSIKP = 3;
+
+    DataVerificationSIKP DataVerificationSIKP = 3;
 }
-message dataSIKP {
+message DataVerificationSIKP {
+    string bankCode = 1;
+    string uploadDate = 2;
+}
+
+message PlafondSIKPRequest {
+    string userId = 1;
+    string ktpNumber = 2;
+}
+
+message PlafondSIKPReponse {
+    int64 status = 1;
+    string message = 2;
+    string messageLocal = 3;
+
+    EmbedDataPlafondSIKP EmbedDataPlafondSIKP = 4;
+}
+message EmbedDataPlafondSIKP {
+    int64 statusCode = 1;
+    string statusDescription = 2;
+
+    DataPlafondSIKP DataPlafondSIKP = 3;
+}
+message DataPlafondSIKP {
     string bankCode = 1;
     string uploadDate = 2;
 }
@@ -40,4 +64,5 @@ service ThirdPartyService {
 
     //SIKP
     rpc VerificationSIKP (VerificationSIKPRequest) returns (VerificationSIKPReponse);
+    rpc PlafondPSIKP (PlafondSIKPRequest) returns (PlafondSIKPReponse);
 }

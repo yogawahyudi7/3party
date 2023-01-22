@@ -94,121 +94,172 @@ func (s *server) VerificationSIKP(ctx context.Context, request *pb.VerificationS
 
 	typeLog := ""
 	//REQUEST PARAMETER
-	userId := request.GetUserId()
+	userIdEncode := request.GetUserId()
 	ktpNumberEncode := request.GetKtpNumber()
 
 	//REQUEST FOR LOGGING
 	requestData := map[string]interface{}{
-		"userId":    userId,
+		"userId":    userIdEncode,
 		"ktpNumber": ktpNumberEncode,
 	}
 	dataRequest, _ := json.Marshal(requestData)
 	jsonDataRequest := string(dataRequest)
 
 	//DECODE PARAMETER
+	userId := ""
 	ktpNumber := ""
 	{
-		//NIK
-		typeLog = "ktpNumber-decode"
-		result, statusCode := Helpers.DecodeStringBase64(ktpNumberEncode)
-		if statusCode != 200 {
-			response = &pb.VerificationSIKPReponse{
-				Status:                    400,
-				Message:                   "Maaf, Encode Parameter ktpNumber tidak valid.",
-				MessageLocal:              "Encode Parameter ktpNumber tidak valid.",
-				EmbedDataVerificationSIKP: nil,
-			}
-
-			//PROCESS TO LOGGING CLOUD
-			{
-				// DATA RESPONSE
-				strStatusCode, _ := Helpers.IntString(400)
-				responseData := map[string]interface{}{
-					"statusCode":   strStatusCode,
-					"responseData": response,
+		//USERID
+		{
+			typeLog = "userId-decode"
+			result, statusCode := Helpers.DecodeStringBase64(userIdEncode)
+			if statusCode != 200 {
+				response = &pb.VerificationSIKPReponse{
+					Status:                    400,
+					Message:                   "Maaf, Encode Parameter userId tidak valid.",
+					MessageLocal:              "Encode Parameter userId tidak valid.",
+					EmbedDataVerificationSIKP: nil,
 				}
 
-				dataResponse, _ := json.Marshal(responseData)
-				jsonDataResponse := string(dataResponse)
+				//PROCESS TO LOGGING CLOUD
+				{
+					// DATA RESPONSE
+					strStatusCode, _ := Helpers.IntString(400)
+					responseData := map[string]interface{}{
+						"statusCode":   strStatusCode,
+						"responseData": response,
+					}
 
-				dataLog := Config.LoggingCloudPubSub{
-					Status:       "400",
-					TypeLog:      typeLog,
-					Endpoint:     constants.EndpointSIKPVerification,
-					UserId:       userId,
-					ActionDate:   time.Now().Format(constants.FullLayoutTime),
-					Description:  constants.Desc3PartyLogging,
-					DataRequest:  string(dataRequest),
-					DataResponse: string(dataResponse),
+					dataResponse, _ := json.Marshal(responseData)
+					jsonDataResponse := string(dataResponse)
+
+					dataLog := Config.LoggingCloudPubSub{
+						Status:       "400",
+						TypeLog:      typeLog,
+						Endpoint:     constants.EndpointSIKPVerification,
+						UserId:       userId,
+						ActionDate:   time.Now().Format(constants.FullLayoutTime),
+						Description:  constants.Desc3PartyLogging,
+						DataRequest:  string(dataRequest),
+						DataResponse: string(dataResponse),
+					}
+
+					logData, _ := json.Marshal(dataLog)
+					jsonDataLog := string(logData)
+
+					Helpers.PubLoggingCloud(jsonDataRequest, jsonDataResponse, jsonDataLog)
+
 				}
-
-				logData, _ := json.Marshal(dataLog)
-				jsonDataLog := string(logData)
-
-				Helpers.PubLoggingCloud(jsonDataRequest, jsonDataResponse, jsonDataLog)
-
+				return response, nil
 			}
-			return response, nil
+			ktpNumber = result
 		}
-		ktpNumber = result
+
+		//NIK
+		{
+			typeLog = "ktpNumber-decode"
+			result, statusCode := Helpers.DecodeStringBase64(ktpNumberEncode)
+			if statusCode != 200 {
+				response = &pb.VerificationSIKPReponse{
+					Status:                    400,
+					Message:                   "Maaf, Encode Parameter ktpNumber tidak valid.",
+					MessageLocal:              "Encode Parameter ktpNumber tidak valid.",
+					EmbedDataVerificationSIKP: nil,
+				}
+
+				//PROCESS TO LOGGING CLOUD
+				{
+					// DATA RESPONSE
+					strStatusCode, _ := Helpers.IntString(400)
+					responseData := map[string]interface{}{
+						"statusCode":   strStatusCode,
+						"responseData": response,
+					}
+
+					dataResponse, _ := json.Marshal(responseData)
+					jsonDataResponse := string(dataResponse)
+
+					dataLog := Config.LoggingCloudPubSub{
+						Status:       "400",
+						TypeLog:      typeLog,
+						Endpoint:     constants.EndpointSIKPVerification,
+						UserId:       userId,
+						ActionDate:   time.Now().Format(constants.FullLayoutTime),
+						Description:  constants.Desc3PartyLogging,
+						DataRequest:  string(dataRequest),
+						DataResponse: string(dataResponse),
+					}
+
+					logData, _ := json.Marshal(dataLog)
+					jsonDataLog := string(logData)
+
+					Helpers.PubLoggingCloud(jsonDataRequest, jsonDataResponse, jsonDataLog)
+
+				}
+				return response, nil
+			}
+			ktpNumber = result
+		}
 	}
 
-	//VALIDATION
+	//VALIDATION PARAMETER
 	{
-		//NIK
-		typeLog = "ktpNumber-validation"
+		// KTP NUMBER
+		{
+			typeLog = "ktpNumber-validation"
 
-		if ktpNumber == "" {
-			response = &pb.VerificationSIKPReponse{
-				Status:                    400,
-				Message:                   "Maaf, Parameter ktpNumber belum diisi.",
-				MessageLocal:              "Parameter ktpNumber belum diisi.",
-				EmbedDataVerificationSIKP: nil,
-			}
-
-			//PROCESS TO LOGGING CLOUD
-			{
-				// DATA RESPONSE
-				strStatusCode, _ := Helpers.IntString(400)
-				responseData := map[string]interface{}{
-					"statusCode":   strStatusCode,
-					"responseData": response,
+			ktpValidateStatus, ktpValidateMessage, ktpValidateMessageLocal := Helpers.ValidatorKtpNumber(ktpNumber)
+			if ktpValidateStatus != 200 {
+				response = &pb.VerificationSIKPReponse{
+					Status:                    int64(ktpValidateStatus),
+					Message:                   ktpValidateMessage,
+					MessageLocal:              ktpValidateMessageLocal,
+					EmbedDataVerificationSIKP: nil,
 				}
 
-				dataResponse, _ := json.Marshal(responseData)
-				jsonDataResponse := string(dataResponse)
+				//PROCESS TO LOGGING CLOUD
+				{
+					// DATA RESPONSE
+					strStatusCode, _ := Helpers.IntString(400)
+					responseData := map[string]interface{}{
+						"statusCode":   strStatusCode,
+						"responseData": response,
+					}
 
-				dataLog := Config.LoggingCloudPubSub{
-					Status:       "400",
-					TypeLog:      typeLog,
-					Endpoint:     constants.EndpointSIKPVerification,
-					UserId:       userId,
-					ActionDate:   time.Now().Format(constants.FullLayoutTime),
-					Description:  constants.Desc3PartyLogging,
-					DataRequest:  string(dataRequest),
-					DataResponse: string(dataResponse),
+					dataResponse, _ := json.Marshal(responseData)
+					jsonDataResponse := string(dataResponse)
+
+					dataLog := Config.LoggingCloudPubSub{
+						Status:       "400",
+						TypeLog:      typeLog,
+						Endpoint:     constants.EndpointSIKPVerification,
+						UserId:       userId,
+						ActionDate:   time.Now().Format(constants.FullLayoutTime),
+						Description:  constants.Desc3PartyLogging,
+						DataRequest:  string(dataRequest),
+						DataResponse: string(dataResponse),
+					}
+
+					logData, _ := json.Marshal(dataLog)
+					jsonDataLog := string(logData)
+
+					Helpers.PubLoggingCloud(jsonDataRequest, jsonDataResponse, jsonDataLog)
+
 				}
-
-				logData, _ := json.Marshal(dataLog)
-				jsonDataLog := string(logData)
-
-				Helpers.PubLoggingCloud(jsonDataRequest, jsonDataResponse, jsonDataLog)
-
 			}
-			return response, nil
 		}
 	}
 
 	//CURL FERIVICATION SIKP
 	typeLog = "curl-verification-sikp"
 
-	params := Helpers.CurlVerifySIKPParams{
+	params := Helpers.CurlVerificationSIKPParams{
 		NIK: ktpNumber,
 	}
 
-	var responseResult Helpers.CurlVerifySIKPResponse
-	var dataResult Helpers.CurlVerifySIKPMapping
-	responseResult, dataResult = Helpers.CurlVerifySIKP(params)
+	var responseResult Helpers.CurlVerificationSIKPResponse
+	var dataResult Helpers.CurlVerificationSIKPMapping
+	responseResult, dataResult = Helpers.CurlVerificationSIKP(params)
 
 	log.Println("Service ** RESULT QUERY SIKP VERIFY **")
 	log.Println(responseResult)
@@ -268,7 +319,298 @@ func (s *server) VerificationSIKP(ctx context.Context, request *pb.VerificationS
 		EmbedDataVerificationSIKP: &pb.EmbedDataVerificationSIKP{
 			StatusCode:        int64(intStatusCode),
 			StatusDescription: dataResult.Body.Response.Result.Message,
-			DataSIKP: &pb.DataSIKP{
+			DataVerificationSIKP: &pb.DataVerificationSIKP{
+				BankCode:   dataResult.Body.Response.Result.Data.KodeBank,
+				UploadDate: dataResult.Body.Response.Result.Data.UploadDate,
+			},
+		},
+	}
+
+	//PROCESS TO LOGGING CLOUD
+	{
+		// DATA RESPONSE
+		strStatusCode, _ := Helpers.IntString(400)
+		responseData := map[string]interface{}{
+			"statusCode":   strStatusCode,
+			"responseData": response,
+		}
+
+		dataResponse, _ := json.Marshal(responseData)
+		jsonDataResponse := string(dataResponse)
+
+		dataLog := Config.LoggingCloudPubSub{
+			Status:       "200",
+			TypeLog:      typeLog,
+			Endpoint:     constants.EndpointSIKPVerification,
+			UserId:       userId,
+			ActionDate:   time.Now().Format(constants.FullLayoutTime),
+			Description:  constants.Desc3PartyLogging,
+			DataRequest:  string(dataRequest),
+			DataResponse: string(dataResponse),
+		}
+
+		logData, _ := json.Marshal(dataLog)
+		jsonDataLog := string(logData)
+
+		Helpers.PubLoggingCloud(jsonDataRequest, jsonDataResponse, jsonDataLog)
+
+	}
+	return response, nil
+}
+
+func (s *server) PlafondSIKP(ctx context.Context, request *pb.PlafondSIKPRequest) (*pb.PlafondSIKPReponse, error) {
+	t := time.Now()
+	formatDate := t.Format("20060102")
+	logJoin := []string{"logs", "/", "services", "/", "3party", "/", "log", "-", formatDate, ".log"}
+	logFile := strings.Join(logJoin, "")
+	_, err := os.Stat(logFile)
+
+	//check exist file log
+	f, _ := os.OpenFile(logFile, os.O_RDWR|os.O_APPEND, 0755)
+	if os.IsNotExist(err) {
+		f, _ = os.OpenFile(logFile, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0755)
+
+	}
+	// Use the following code if you need to write the logs to file and console at the same time.
+	gin.DefaultWriter = io.MultiWriter(f, os.Stdout)
+
+	log.SetOutput(gin.DefaultWriter)
+
+	response := &pb.PlafondSIKPReponse{
+		Status:               0,
+		Message:              "-",
+		MessageLocal:         "-",
+		EmbedDataPlafondSIKP: nil,
+	}
+
+	typeLog := ""
+	//REQUEST PARAMETER
+	userIdEncode := request.GetUserId()
+	ktpNumberEncode := request.GetKtpNumber()
+
+	//REQUEST FOR LOGGING
+	requestData := map[string]interface{}{
+		"userId":    userIdEncode,
+		"ktpNumber": ktpNumberEncode,
+	}
+	dataRequest, _ := json.Marshal(requestData)
+	jsonDataRequest := string(dataRequest)
+
+	//DECODE PARAMETER
+	userId := ""
+	ktpNumber := ""
+	{
+		//USERID
+		{
+			typeLog = "ktpNumber-decode"
+			result, statusCode := Helpers.DecodeStringBase64(userIdEncode)
+			if statusCode != 200 {
+				response = &pb.PlafondSIKPReponse{
+					Status:               400,
+					Message:              "Maaf, Encode Parameter userId tidak valid.",
+					MessageLocal:         "Encode Parameter userId tidak valid.",
+					EmbedDataPlafondSIKP: nil,
+				}
+
+				//PROCESS TO LOGGING CLOUD
+				{
+					// DATA RESPONSE
+					strStatusCode, _ := Helpers.IntString(400)
+					responseData := map[string]interface{}{
+						"statusCode":   strStatusCode,
+						"responseData": response,
+					}
+
+					dataResponse, _ := json.Marshal(responseData)
+					jsonDataResponse := string(dataResponse)
+
+					dataLog := Config.LoggingCloudPubSub{
+						Status:       "400",
+						TypeLog:      typeLog,
+						Endpoint:     constants.EndpointSIKPVerification, //TODO:change endpont
+						UserId:       userId,
+						ActionDate:   time.Now().Format(constants.FullLayoutTime),
+						Description:  constants.Desc3PartyLogging,
+						DataRequest:  string(dataRequest),
+						DataResponse: string(dataResponse),
+					}
+
+					logData, _ := json.Marshal(dataLog)
+					jsonDataLog := string(logData)
+
+					Helpers.PubLoggingCloud(jsonDataRequest, jsonDataResponse, jsonDataLog)
+
+				}
+				return response, nil
+			}
+			ktpNumber = result
+		}
+
+		//NIK
+		{
+			typeLog = "ktpNumber-decode"
+			result, statusCode := Helpers.DecodeStringBase64(ktpNumberEncode)
+			if statusCode != 200 {
+				response = &pb.PlafondSIKPReponse{
+					Status:               400,
+					Message:              "Maaf, Encode Parameter ktpNumber tidak valid.",
+					MessageLocal:         "Encode Parameter ktpNumber tidak valid.",
+					EmbedDataPlafondSIKP: nil,
+				}
+
+				//PROCESS TO LOGGING CLOUD
+				{
+					// DATA RESPONSE
+					strStatusCode, _ := Helpers.IntString(400)
+					responseData := map[string]interface{}{
+						"statusCode":   strStatusCode,
+						"responseData": response,
+					}
+
+					dataResponse, _ := json.Marshal(responseData)
+					jsonDataResponse := string(dataResponse)
+
+					dataLog := Config.LoggingCloudPubSub{
+						Status:       "400",
+						TypeLog:      typeLog,
+						Endpoint:     constants.EndpointSIKPVerification, //TODO:change endpont
+						UserId:       userId,
+						ActionDate:   time.Now().Format(constants.FullLayoutTime),
+						Description:  constants.Desc3PartyLogging,
+						DataRequest:  string(dataRequest),
+						DataResponse: string(dataResponse),
+					}
+
+					logData, _ := json.Marshal(dataLog)
+					jsonDataLog := string(logData)
+
+					Helpers.PubLoggingCloud(jsonDataRequest, jsonDataResponse, jsonDataLog)
+
+				}
+				return response, nil
+			}
+			ktpNumber = result
+		}
+	}
+
+	//VALIDATION PARAMETER
+	{
+		// KTP NUMBER
+		{
+			typeLog = "ktpNumber-validation"
+
+			ktpValidateStatus, ktpValidateMessage, ktpValidateMessageLocal := Helpers.ValidatorKtpNumber(ktpNumber)
+			if ktpValidateStatus != 200 {
+				response = &pb.PlafondSIKPReponse{
+					Status:               int64(ktpValidateStatus),
+					Message:              ktpValidateMessage,
+					MessageLocal:         ktpValidateMessageLocal,
+					EmbedDataPlafondSIKP: nil,
+				}
+
+				//PROCESS TO LOGGING CLOUD
+				{
+					// DATA RESPONSE
+					strStatusCode, _ := Helpers.IntString(400)
+					responseData := map[string]interface{}{
+						"statusCode":   strStatusCode,
+						"responseData": response,
+					}
+
+					dataResponse, _ := json.Marshal(responseData)
+					jsonDataResponse := string(dataResponse)
+
+					dataLog := Config.LoggingCloudPubSub{
+						Status:       "400",
+						TypeLog:      typeLog,
+						Endpoint:     constants.EndpointSIKPVerification,
+						UserId:       userId,
+						ActionDate:   time.Now().Format(constants.FullLayoutTime),
+						Description:  constants.Desc3PartyLogging,
+						DataRequest:  string(dataRequest),
+						DataResponse: string(dataResponse),
+					}
+
+					logData, _ := json.Marshal(dataLog)
+					jsonDataLog := string(logData)
+
+					Helpers.PubLoggingCloud(jsonDataRequest, jsonDataResponse, jsonDataLog)
+
+				}
+			}
+		}
+	}
+
+	//CURL FERIVICATION SIKP
+	typeLog = "curl-verification-sikp"
+
+	params := Helpers.CurlVerificationSIKPParams{
+		NIK: ktpNumber,
+	}
+
+	var responseResult Helpers.CurlVerificationSIKPResponse
+	var dataResult Helpers.CurlVerificationSIKPMapping
+	responseResult, dataResult = Helpers.CurlVerificationSIKP(params)
+
+	log.Println("Service ** RESULT QUERY SIKP VERIFY **")
+	log.Println(responseResult)
+	log.Println(dataResult)
+
+	//response success
+	if responseResult.Status != 200 {
+		response = &pb.PlafondSIKPReponse{
+			Status:               int64(responseResult.Status),
+			Message:              responseResult.Message,
+			MessageLocal:         responseResult.MessageLocal,
+			EmbedDataPlafondSIKP: nil,
+		}
+
+		//PROCESS TO LOGGING CLOUD
+		{
+			// DATA RESPONSE
+			strStatusCode, _ := Helpers.IntString(400)
+			responseData := map[string]interface{}{
+				"statusCode":   strStatusCode,
+				"responseData": response,
+			}
+
+			dataResponse, _ := json.Marshal(responseData)
+			jsonDataResponse := string(dataResponse)
+
+			dataLog := Config.LoggingCloudPubSub{
+				Status:       "400",
+				TypeLog:      typeLog,
+				Endpoint:     constants.EndpointSIKPVerification,
+				UserId:       userId,
+				ActionDate:   time.Now().Format(constants.FullLayoutTime),
+				Description:  constants.Desc3PartyLogging,
+				DataRequest:  string(dataRequest),
+				DataResponse: string(dataResponse),
+			}
+
+			logData, _ := json.Marshal(dataLog)
+			jsonDataLog := string(logData)
+
+			Helpers.PubLoggingCloud(jsonDataRequest, jsonDataResponse, jsonDataLog)
+
+		}
+		return response, nil
+
+	}
+
+	//response success
+	typeLog = "success-verification-sikp"
+
+	intStatusCode, _ := Helpers.StringInt(dataResult.Body.Response.Result.Code)
+
+	response = &pb.PlafondSIKPReponse{
+		Status:       200,
+		Message:      responseResult.Message,
+		MessageLocal: responseResult.MessageLocal,
+		EmbedDataPlafondSIKP: &pb.EmbedDataPlafondSIKP{
+			StatusCode:        int64(intStatusCode),
+			StatusDescription: dataResult.Body.Response.Result.Message,
+			DataPlafondSIKP: &pb.DataPlafondSIKP{
 				BankCode:   dataResult.Body.Response.Result.Data.KodeBank,
 				UploadDate: dataResult.Body.Response.Result.Data.UploadDate,
 			},
