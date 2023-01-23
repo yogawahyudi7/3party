@@ -33,12 +33,19 @@ type CurlVerificationSIKPMapping struct {
 
 type BodyVerificationSIKP struct {
 	XMLName  xml.Name                 `xml:"Body"`
+	Fault    FaultVerivicationSIKP    `xml:"Fault"`
 	Response ResponseVerificationSIKP `xml:"get_SIKP_Calon_satuanResponse"`
 }
 
 type ResponseVerificationSIKP struct {
 	XMLName xml.Name               `xml:"get_SIKP_Calon_satuanResponse"`
 	Result  ResultVerificationSIKP `xml:"get_SIKP_Calon_satuanResult"`
+}
+
+type FaultVerivicationSIKP struct {
+	XMLName     xml.Name `xml:"Fault"`
+	FaultCode   string   `xml:"faultcode"`
+	FaultString string   `xml:"faultstring"`
 }
 
 type ResultVerificationSIKP struct {
@@ -139,16 +146,20 @@ func CurlVerificationSIKP(params CurlVerificationSIKPParams) (response CurlVerif
 	defer curlResponse.Body.Close()
 
 	log.Println("Helper -- RESPONSE STATUS CURL SIKP VERIFY : ", curlResponse.Status)
+	log.Println("Helper -- RESPONSE STATUS CURL SIKP VERIFY : ", curlResponse.StatusCode)
 	log.Println("Helper -- RESPONSE HEADERS CURL SIKP VERIFY : ", curlResponse.Header)
 	log.Println("Helper -- REQUEST URL CURL SIKP VERIFY : ", curlResponse.Request.URL)
 	log.Println("Helper -- REQUEST CONTENT LENGTH CURL SIKP VERIFY : ", curlResponse.Request.ContentLength)
+
+	xml.NewDecoder(curlResponse.Body).Decode(&data)
+	fmt.Println(">>>>>>>>>", data)
 
 	//ERROR STATUS CODE
 	if curlResponse.StatusCode != 200 {
 		// log.Println("Helper --- ERROR STATUS CODE CURL SIKP VERIFY ---")
 		// log.Println("Helper --- ERROR STATUS CODE CURL SIKP VERIFY : ", curlResponse.StatusCode)
 
-		joinString := []string{"Status Code : ", "-", " | Error : ", err.Error()}
+		joinString := []string{"Status Code : ", "-", " | Error : ", data.Body.Fault.FaultCode}
 		erorrMessage := strings.Join(joinString, "")
 
 		response := CurlVerificationSIKPResponse{
@@ -159,8 +170,6 @@ func CurlVerificationSIKP(params CurlVerificationSIKPParams) (response CurlVerif
 
 		return response, data
 	}
-
-	xml.NewDecoder(curlResponse.Body).Decode(&data)
 
 	// log.Println("Helper --- DATA DECODE CURL SIKP VERIFY ---")
 	// log.Println(data)

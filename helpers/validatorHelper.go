@@ -110,6 +110,52 @@ func ValidateFullText(fl validator.FieldLevel) bool {
 	return checking
 }
 
+func ValidatorUserId(userId string) (status int, errorMessage string, errorMessageLocal string) {
+	status = 200
+
+	validate = validator.New()
+
+	if userId == "" {
+		status = 400
+		errorMessage = "Maaf, Parameter user id belum diisi"
+		errorMessageLocal = "Parameter userId belum diisi"
+
+		return status, errorMessage, errorMessageLocal
+
+	}
+
+	log.Println("User Id :", userId)
+	//helper validator
+	validate.RegisterValidation("integer", ValidateNumeric)
+	str := ValidateNumericStruct{Integer: userId}
+
+	errs := validate.Struct(str)
+	if errs != nil {
+		log.Println("Error Id : ", errs.Error())
+		status = 400
+		errorMessage = "Maaf, Parameter user id hanya boleh menggunakan angka"
+		errorMessageLocal = "Format Parameter userId tidak sesuai"
+
+		return status, errorMessage, errorMessageLocal
+
+	}
+
+	//validasi max min
+	errs2 := validate.Var(userId, "min=6,max=6")
+
+	if errs2 != nil {
+		log.Println("Error Password : ", errs2.Error())
+
+		status = 400
+		errorMessage = "Maaf, ID User harus 6 digit. Format : 123XXX"
+		errorMessageLocal = "Parameter userId tidak sesuai"
+
+		return status, errorMessage, errorMessageLocal
+	}
+
+	return status, errorMessage, errorMessageLocal
+}
+
 func ValidatorKtpNumber(text string) (status int, errorMessage string, errorMessageLocal string) {
 	status = 200
 
