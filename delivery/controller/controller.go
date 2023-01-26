@@ -386,7 +386,7 @@ func (s *Server) VerificationSIKP(ctx context.Context, request *pb.VerificationS
 	return response, nil
 }
 
-func (s *Server) PlafondSIKP(ctx context.Context, request *pb.PlafondSIKPRequest) (*pb.PlafondSIKPReponse, error) {
+func (s *Server) CheckPlafondSIKP(ctx context.Context, request *pb.CheckPlafondSIKPRequest) (*pb.CheckPlafondSIKPReponse, error) {
 	t := time.Now()
 	formatDate := t.Format("20060102")
 	logJoin := []string{"logs", "/", "services", "/", "3party", "/", "log", "-", formatDate, ".log"}
@@ -404,11 +404,11 @@ func (s *Server) PlafondSIKP(ctx context.Context, request *pb.PlafondSIKPRequest
 
 	log.SetOutput(gin.DefaultWriter)
 
-	response := &pb.PlafondSIKPReponse{
-		Status:               0,
-		Message:              "-",
-		MessageLocal:         "-",
-		EmbedDataPlafondSIKP: nil,
+	response := &pb.CheckPlafondSIKPReponse{
+		Status:                    0,
+		Message:                   "-",
+		MessageLocal:              "-",
+		EmbedDataCheckPlafondSIKP: nil,
 	}
 
 	typeLog := ""
@@ -433,11 +433,11 @@ func (s *Server) PlafondSIKP(ctx context.Context, request *pb.PlafondSIKPRequest
 			typeLog = "ktpNumber-decode"
 			result, statusCode := Helpers.DecodeStringBase64(userIdEncode)
 			if statusCode != 200 {
-				response = &pb.PlafondSIKPReponse{
-					Status:               400,
-					Message:              "Maaf, Encode Parameter userId tidak valid.",
-					MessageLocal:         "Encode Parameter userId tidak valid.",
-					EmbedDataPlafondSIKP: nil,
+				response = &pb.CheckPlafondSIKPReponse{
+					Status:                    400,
+					Message:                   "Maaf, Encode Parameter userId tidak valid.",
+					MessageLocal:              "Encode Parameter userId tidak valid.",
+					EmbedDataCheckPlafondSIKP: nil,
 				}
 
 				//PROCESS TO LOGGING CLOUD
@@ -455,7 +455,7 @@ func (s *Server) PlafondSIKP(ctx context.Context, request *pb.PlafondSIKPRequest
 					dataLog := Config.LoggingCloudPubSub{
 						Status:       "400",
 						TypeLog:      typeLog,
-						Endpoint:     constants.EndpointSIKPVerification, //TODO:change endpont
+						Endpoint:     constants.EndpointSIKPCheckPlafond,
 						UserId:       userId,
 						ActionDate:   time.Now().Format(constants.FullLayoutTime),
 						Description:  constants.Desc3PartyLogging,
@@ -479,11 +479,11 @@ func (s *Server) PlafondSIKP(ctx context.Context, request *pb.PlafondSIKPRequest
 			typeLog = "ktpNumber-decode"
 			result, statusCode := Helpers.DecodeStringBase64(ktpNumberEncode)
 			if statusCode != 200 {
-				response = &pb.PlafondSIKPReponse{
-					Status:               400,
-					Message:              "Maaf, Encode Parameter ktpNumber tidak valid.",
-					MessageLocal:         "Encode Parameter ktpNumber tidak valid.",
-					EmbedDataPlafondSIKP: nil,
+				response = &pb.CheckPlafondSIKPReponse{
+					Status:                    400,
+					Message:                   "Maaf, Encode Parameter ktpNumber tidak valid.",
+					MessageLocal:              "Encode Parameter ktpNumber tidak valid.",
+					EmbedDataCheckPlafondSIKP: nil,
 				}
 
 				//PROCESS TO LOGGING CLOUD
@@ -501,7 +501,7 @@ func (s *Server) PlafondSIKP(ctx context.Context, request *pb.PlafondSIKPRequest
 					dataLog := Config.LoggingCloudPubSub{
 						Status:       "400",
 						TypeLog:      typeLog,
-						Endpoint:     constants.EndpointSIKPVerification, //TODO:change endpont
+						Endpoint:     constants.EndpointSIKPCheckPlafond,
 						UserId:       userId,
 						ActionDate:   time.Now().Format(constants.FullLayoutTime),
 						Description:  constants.Desc3PartyLogging,
@@ -523,17 +523,17 @@ func (s *Server) PlafondSIKP(ctx context.Context, request *pb.PlafondSIKPRequest
 
 	//VALIDATION PARAMETER
 	{
-		// KTP NUMBER
+		// USER ID
 		{
-			typeLog = "ktpNumber-validation"
+			typeLog = "userId-validation"
 
-			ktpValidateStatus, ktpValidateMessage, ktpValidateMessageLocal := Helpers.ValidatorKtpNumber(ktpNumber)
+			ktpValidateStatus, ktpValidateMessage, ktpValidateMessageLocal := Helpers.ValidatorUserId(userId)
 			if ktpValidateStatus != 200 {
-				response = &pb.PlafondSIKPReponse{
-					Status:               int64(ktpValidateStatus),
-					Message:              ktpValidateMessage,
-					MessageLocal:         ktpValidateMessageLocal,
-					EmbedDataPlafondSIKP: nil,
+				response = &pb.CheckPlafondSIKPReponse{
+					Status:                    int64(ktpValidateStatus),
+					Message:                   ktpValidateMessage,
+					MessageLocal:              ktpValidateMessageLocal,
+					EmbedDataCheckPlafondSIKP: nil,
 				}
 
 				//PROCESS TO LOGGING CLOUD
@@ -551,7 +551,7 @@ func (s *Server) PlafondSIKP(ctx context.Context, request *pb.PlafondSIKPRequest
 					dataLog := Config.LoggingCloudPubSub{
 						Status:       "400",
 						TypeLog:      typeLog,
-						Endpoint:     constants.EndpointSIKPVerification,
+						Endpoint:     constants.EndpointSIKPCheckPlafond,
 						UserId:       userId,
 						ActionDate:   time.Now().Format(constants.FullLayoutTime),
 						Description:  constants.Desc3PartyLogging,
@@ -565,6 +565,54 @@ func (s *Server) PlafondSIKP(ctx context.Context, request *pb.PlafondSIKPRequest
 					Helpers.PubLoggingCloud(jsonDataRequest, jsonDataResponse, jsonDataLog)
 
 				}
+				return response, nil
+			}
+		}
+
+		// KTP NUMBER
+		{
+			typeLog = "ktpNumber-validation"
+
+			ktpValidateStatus, ktpValidateMessage, ktpValidateMessageLocal := Helpers.ValidatorKtpNumber(ktpNumber)
+			if ktpValidateStatus != 200 {
+				response = &pb.CheckPlafondSIKPReponse{
+					Status:                    int64(ktpValidateStatus),
+					Message:                   ktpValidateMessage,
+					MessageLocal:              ktpValidateMessageLocal,
+					EmbedDataCheckPlafondSIKP: nil,
+				}
+
+				//PROCESS TO LOGGING CLOUD
+				{
+					// DATA RESPONSE
+					strStatusCode, _ := Helpers.IntString(400)
+					responseData := map[string]interface{}{
+						"statusCode":   strStatusCode,
+						"responseData": response,
+					}
+
+					dataResponse, _ := json.Marshal(responseData)
+					jsonDataResponse := string(dataResponse)
+
+					dataLog := Config.LoggingCloudPubSub{
+						Status:       "400",
+						TypeLog:      typeLog,
+						Endpoint:     constants.EndpointSIKPCheckPlafond,
+						UserId:       userId,
+						ActionDate:   time.Now().Format(constants.FullLayoutTime),
+						Description:  constants.Desc3PartyLogging,
+						DataRequest:  string(dataRequest),
+						DataResponse: string(dataResponse),
+					}
+
+					logData, _ := json.Marshal(dataLog)
+					jsonDataLog := string(logData)
+
+					Helpers.PubLoggingCloud(jsonDataRequest, jsonDataResponse, jsonDataLog)
+
+				}
+				return response, nil
+
 			}
 		}
 	}
@@ -572,25 +620,25 @@ func (s *Server) PlafondSIKP(ctx context.Context, request *pb.PlafondSIKPRequest
 	//CURL FERIVICATION SIKP
 	typeLog = "curl-verification-sikp"
 
-	params := Helpers.CurlVerificationSIKPParams{
+	params := Helpers.CurlPlafondSIKPParams{
 		NIK: ktpNumber,
 	}
 
-	var responseResult Helpers.CurlVerificationSIKPResponse
-	var dataResult Helpers.CurlVerificationSIKPMapping
-	responseResult, dataResult = Helpers.CurlVerificationSIKP(params)
+	var responseResult Helpers.CurlPlafondSIKPResponse
+	var dataResult Helpers.CurlPlafondSIKPMapping
+	responseResult, dataResult = Helpers.CurlPlafondSIKP(params)
 
-	log.Println("Service ** RESULT QUERY SIKP VERIFY **")
+	log.Println("Service ** RESULT QUERY PLAFOND SIKP **")
 	log.Println(responseResult)
 	log.Println(dataResult)
 
 	//response success
 	if responseResult.Status != 200 {
-		response = &pb.PlafondSIKPReponse{
-			Status:               int64(responseResult.Status),
-			Message:              responseResult.Message,
-			MessageLocal:         responseResult.MessageLocal,
-			EmbedDataPlafondSIKP: nil,
+		response = &pb.CheckPlafondSIKPReponse{
+			Status:                    int64(responseResult.Status),
+			Message:                   responseResult.Message,
+			MessageLocal:              responseResult.MessageLocal,
+			EmbedDataCheckPlafondSIKP: nil,
 		}
 
 		//PROCESS TO LOGGING CLOUD
@@ -608,7 +656,7 @@ func (s *Server) PlafondSIKP(ctx context.Context, request *pb.PlafondSIKPRequest
 			dataLog := Config.LoggingCloudPubSub{
 				Status:       "400",
 				TypeLog:      typeLog,
-				Endpoint:     constants.EndpointSIKPVerification,
+				Endpoint:     constants.EndpointSIKPCheckPlafond,
 				UserId:       userId,
 				ActionDate:   time.Now().Format(constants.FullLayoutTime),
 				Description:  constants.Desc3PartyLogging,
@@ -627,21 +675,42 @@ func (s *Server) PlafondSIKP(ctx context.Context, request *pb.PlafondSIKPRequest
 	}
 
 	//response success
-	typeLog = "success-verification-sikp"
+	typeLog = "success-check-plafond-sikp"
 
 	intStatusCode, _ := Helpers.StringInt(dataResult.Body.Response.Result.Code)
 
-	response = &pb.PlafondSIKPReponse{
+	var resultData []*pb.DataCheckPlafondSIKP
+	for _, vData := range dataResult.Body.Response.Result.Data.DataPlafond {
+
+		scheme, _ := Helpers.StringInt(vData.Skema)
+		totalLimitDefault, _ := Helpers.StringInt(vData.TotalLimitDefault)
+		totalLimit, _ := Helpers.StringInt(vData.TotalLimit)
+		limitActiveDefault, _ := Helpers.StringInt(vData.LimitAktifDefault)
+		limitActive, _ := Helpers.StringInt(vData.LimitAktif)
+		bankCode, _ := Helpers.StringInt(vData.KodeBank)
+
+		data := pb.DataCheckPlafondSIKP{
+			KtpNumber:          vData.Nik,
+			Scheme:             int64(scheme),
+			TotalLimitDefault:  int64(totalLimitDefault),
+			TotalLimit:         int64(totalLimit),
+			LimitActiveDefault: int64(limitActiveDefault),
+			LimitActive:        int64(limitActive),
+			BankCode:           int64(bankCode),
+		}
+
+		resultData = append(resultData, &data)
+
+	}
+
+	response = &pb.CheckPlafondSIKPReponse{
 		Status:       200,
 		Message:      responseResult.Message,
 		MessageLocal: responseResult.MessageLocal,
-		EmbedDataPlafondSIKP: &pb.EmbedDataPlafondSIKP{
-			StatusCode:        int64(intStatusCode),
-			StatusDescription: dataResult.Body.Response.Result.Message,
-			DataPlafondSIKP: &pb.DataPlafondSIKP{
-				BankCode:   dataResult.Body.Response.Result.Data.KodeBank,
-				UploadDate: dataResult.Body.Response.Result.Data.UploadDate,
-			},
+		EmbedDataCheckPlafondSIKP: &pb.EmbedDataCheckPlafondSIKP{
+			StatusCode:           int64(intStatusCode),
+			StatusDescription:    dataResult.Body.Response.Result.Message,
+			DataCheckPlafondSIKP: resultData,
 		},
 	}
 
@@ -660,7 +729,7 @@ func (s *Server) PlafondSIKP(ctx context.Context, request *pb.PlafondSIKPRequest
 		dataLog := Config.LoggingCloudPubSub{
 			Status:       "200",
 			TypeLog:      typeLog,
-			Endpoint:     constants.EndpointSIKPVerification,
+			Endpoint:     constants.EndpointSIKPCheckPlafond,
 			UserId:       userId,
 			ActionDate:   time.Now().Format(constants.FullLayoutTime),
 			Description:  constants.Desc3PartyLogging,

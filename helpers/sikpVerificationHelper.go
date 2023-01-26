@@ -152,14 +152,14 @@ func CurlVerificationSIKP(params CurlVerificationSIKPParams) (response CurlVerif
 	log.Println("Helper -- REQUEST CONTENT LENGTH CURL SIKP VERIFY : ", curlResponse.Request.ContentLength)
 
 	xml.NewDecoder(curlResponse.Body).Decode(&data)
-	fmt.Println(">>>>>>>>>", data)
+	log.Println("RESULT DATA :", data)
 
 	//ERROR STATUS CODE
 	if curlResponse.StatusCode != 200 {
 		// log.Println("Helper --- ERROR STATUS CODE CURL SIKP VERIFY ---")
 		// log.Println("Helper --- ERROR STATUS CODE CURL SIKP VERIFY : ", curlResponse.StatusCode)
 
-		joinString := []string{"Status Code : ", "-", " | Error : ", data.Body.Fault.FaultCode}
+		joinString := []string{"Status Code : ", "-", " | Error : ", data.Body.Fault.FaultString}
 		erorrMessage := strings.Join(joinString, "")
 
 		response := CurlVerificationSIKPResponse{

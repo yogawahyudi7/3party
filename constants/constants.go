@@ -29,6 +29,7 @@ const (
 
 	//ENDPOINT
 	EndpointSIKPVerification = "/v/1/sikp/verification"
+	EndpointSIKPCheckPlafond = "/v/1/sikp/check-plafond"
 
 	DataFoundMessage       = "Data Ditemukan."
 	DataNotFoundMessage    = "Data Tidak Ditemukan."

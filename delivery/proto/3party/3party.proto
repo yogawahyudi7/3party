@@ -35,27 +35,32 @@ message DataVerificationSIKP {
     string uploadDate = 2;
 }
 
-message PlafondSIKPRequest {
+message CheckPlafondSIKPRequest {
     string userId = 1;
     string ktpNumber = 2;
 }
 
-message PlafondSIKPReponse {
+message CheckPlafondSIKPReponse {
     int64 status = 1;
     string message = 2;
     string messageLocal = 3;
 
-    EmbedDataPlafondSIKP EmbedDataPlafondSIKP = 4;
+    EmbedDataCheckPlafondSIKP EmbedDataCheckPlafondSIKP = 4;
 }
-message EmbedDataPlafondSIKP {
+message EmbedDataCheckPlafondSIKP {
     int64 statusCode = 1;
     string statusDescription = 2;
 
-    DataPlafondSIKP DataPlafondSIKP = 3;
+    repeated DataCheckPlafondSIKP DataCheckPlafondSIKP = 3;
 }
-message DataPlafondSIKP {
-    string bankCode = 1;
-    string uploadDate = 2;
+message DataCheckPlafondSIKP {
+    string ktpNumber = 1;
+    int64 scheme = 2;
+    int64 totalLimitDefault = 3;
+    int64 totalLimit = 4;
+    int64 limitActiveDefault = 5;
+    int64 limitActive = 6;
+    int64 bankCode = 7;
 }
 
 //SERVICE START
@@ -64,5 +69,5 @@ service ThirdPartyService {
 
     //SIKP
     rpc VerificationSIKP (VerificationSIKPRequest) returns (VerificationSIKPReponse);
-    rpc PlafondPSIKP (PlafondSIKPRequest) returns (PlafondSIKPReponse);
+    rpc CheckPlafondSIKP (CheckPlafondSIKPRequest) returns (CheckPlafondSIKPReponse);
 }

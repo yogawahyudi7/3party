@@ -338,8 +338,107 @@ func RouterMain() http.Handler {
 				})
 			}
 		})
+
+		thirdPartyEndpoint.POST("/sikp/check-plafond", func(ctx *gin.Context) {
+			type DataPlafondSIKP struct {
+				KtpNumber          string `json:"ktNumber"`
+				Scheme             int64  `json:"scheme"`
+				SchemeDescription  string `json:"schemeDescription"`
+				TotalLimitDefault  int64  `json:"totalLimitDefault"`
+				TotalLimit         int64  `json:"totalLimit"`
+				LimitActiveDefault int64  `json:"LimitActiveDefault"`
+				LimitActive        int64  `json:"LimitActive"`
+				BankCode           int64  `json:"bankCode,omitempty"`
+			}
+
+			userId := ctx.DefaultPostForm("userId", "")
+			ktpNumber := ctx.DefaultPostForm("ktpNumber", "")
+
+			fmt.Println("ISER ID", userId)
+			fmt.Println("KTP NUMBER", ktpNumber)
+
+			req := &pb.CheckPlafondSIKPRequest{
+				UserId:    userId,
+				KtpNumber: ktpNumber,
+			}
+
+			if response, err := client.CheckPlafondSIKP(ctx, req); err == nil {
+				if response.Status == 400 {
+					ctx.JSON(http.StatusBadRequest, gin.H{
+						"status":  response.GetStatus(),
+						"message": response.GetMessage(),
+						"desc":    response.GetMessageLocal(),
+						"data":    nil,
+					})
+					return
+				}
+
+				if response.Status != 200 {
+					ctx.JSON(http.StatusInternalServerError, gin.H{
+						"status":  response.GetStatus(),
+						"message": response.GetMessage(),
+						"desc":    response.GetMessageLocal(),
+						"data":    nil,
+					})
+					return
+				}
+
+				if response.GetMessage() == "Data Ditemukan" {
+
+					resultData := []DataPlafondSIKP{}
+
+					for _, vData := range response.GetEmbedDataCheckPlafondSIKP().GetDataCheckPlafondSIKP() {
+
+						data := DataPlafondSIKP{
+							KtpNumber:          vData.GetKtpNumber(),
+							Scheme:             vData.GetScheme(),
+							SchemeDescription:  "",
+							TotalLimitDefault:  vData.GetTotalLimitDefault(),
+							TotalLimit:         vData.GetTotalLimit(),
+							LimitActiveDefault: vData.GetLimitActiveDefault(),
+							LimitActive:        vData.GetLimitActive(),
+							BankCode:           vData.GetBankCode(),
+						}
+
+						// resultKtpNumber := vData.GetKtpNumber()
+						// sheme, _ := Helpers.
+						// // schemeDescription :=
+						// totalLimitDefault := vData.GetTotalLimitDefault()
+						// totalLimit := vData.GetTotalLimit()
+						// limitActiveDefault := vData.GetLimitActiveDefault()
+						// limitActive := vData.GetLimitActive()
+						// bankCode := vData.GetBankCode()
+
+						resultData = append(resultData, data)
+					}
+					ctx.JSON(http.StatusOK, gin.H{
+						"status":  200,
+						"message": Constants.DataFoundMessage,
+						"desc":    Constants.SuccessProccessMessage,
+						"data":    resultData,
+					})
+					return
+				} else {
+					ctx.JSON(http.StatusOK, gin.H{
+						"status":  404,
+						"message": Constants.DataNotFoundMessage,
+						"desc":    Constants.SuccessProccessMessage,
+						"data":    nil,
+					})
+					return
+
+				}
+
+			} else {
+				ctx.JSON(http.StatusInternalServerError, gin.H{
+					"status":  500,
+					"message": Constants.ErorrGeneralMessage,
+					"desc":    err.Error(),
+					"data":    nil,
+				})
+			}
+		})
+
 	}
-
 	return router
-
 }

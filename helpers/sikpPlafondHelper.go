@@ -33,7 +33,14 @@ type CurlPlafondSIKPMapping struct {
 
 type BodyPlafondSIKP struct {
 	XMLName  xml.Name            `xml:"Body"`
+	Fault    FaultPlafondSIKP    `xml:"Fault"`
 	Response ResponsePlafondSIKP `xml:"get_SIKP_PlafonResponse"`
+}
+
+type FaultPlafondSIKP struct {
+	XMLName     xml.Name `xml:"Fault"`
+	FaultCode   string   `xml:"faultcode"`
+	FaultString string   `xml:"faultstring"`
 }
 
 type ResponsePlafondSIKP struct {
@@ -153,12 +160,15 @@ func CurlPlafondSIKP(params CurlPlafondSIKPParams) (response CurlPlafondSIKPResp
 	log.Println("Helper -- REQUEST URL CURL PLAFOND SIKP : ", curlResponse.Request.URL)
 	log.Println("Helper -- REQUEST CONTENT LENGTH CURL PLAFOND SIKP : ", curlResponse.Request.ContentLength)
 
+	xml.NewDecoder(curlResponse.Body).Decode(&data)
+	log.Println("RESULT DATA :", data)
+
 	//ERROR STATUS CODE
 	if curlResponse.StatusCode != 200 {
 		// log.Println("Helper --- ERROR STATUS CODE CURL PLAFOND SIKP ---")
 		// log.Println("Helper --- ERROR STATUS CODE CURL PLAFOND SIKP : ", curlResponse.StatusCode)
 
-		joinString := []string{"Status Code : ", "-", " | Error : ", err.Error()}
+		joinString := []string{"Status Code : ", "-", " | Error : ", data.Body.Fault.FaultString}
 		erorrMessage := strings.Join(joinString, "")
 
 		response := CurlPlafondSIKPResponse{
@@ -169,8 +179,6 @@ func CurlPlafondSIKP(params CurlPlafondSIKPParams) (response CurlPlafondSIKPResp
 
 		return response, data
 	}
-
-	xml.NewDecoder(curlResponse.Body).Decode(&data)
 
 	// log.Println("Helper --- DATA DECODE CURL PLAFOND SIKP ---")
 	// log.Println(data)
