@@ -14,9 +14,9 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
-	Config "3party/config"
-	Constants "3party/constants"
-	pb "3party/delivery/proto/3party"
+	Config "pinang-mikro-3party/config"
+	Constants "pinang-mikro-3party/constants"
+	pb "pinang-mikro-3party/delivery/proto/3party"
 )
 
 func OutOfServiceTime() gin.HandlerFunc {
@@ -341,20 +341,20 @@ func RouterMain() http.Handler {
 
 		thirdPartyEndpoint.POST("/sikp/check-plafond", func(ctx *gin.Context) {
 			type DataPlafondSIKP struct {
-				KtpNumber          string `json:"ktNumber"`
-				Scheme             int64  `json:"scheme"`
-				SchemeDescription  string `json:"schemeDescription"`
-				TotalLimitDefault  int64  `json:"totalLimitDefault"`
-				TotalLimit         int64  `json:"totalLimit"`
-				LimitActiveDefault int64  `json:"LimitActiveDefault"`
-				LimitActive        int64  `json:"LimitActive"`
-				BankCode           int64  `json:"bankCode,omitempty"`
+				KtpNumber string `json:"ktNumber"`
+				Scheme    int64  `json:"scheme"`
+				// SchemeDescription  string `json:"schemeDescription"`
+				TotalLimitDefault  int64 `json:"totalLimitDefault"`
+				TotalLimit         int64 `json:"totalLimit"`
+				LimitActiveDefault int64 `json:"limitActiveDefault"`
+				LimitActive        int64 `json:"limitActive"`
+				BankCode           int64 `json:"bankCode"`
 			}
 
 			userId := ctx.DefaultPostForm("userId", "")
 			ktpNumber := ctx.DefaultPostForm("ktpNumber", "")
 
-			fmt.Println("ISER ID", userId)
+			fmt.Println("USER ID", userId)
 			fmt.Println("KTP NUMBER", ktpNumber)
 
 			req := &pb.CheckPlafondSIKPRequest{
@@ -383,16 +383,16 @@ func RouterMain() http.Handler {
 					return
 				}
 
-				if response.GetMessage() == "Data Ditemukan" {
+				if response.EmbedDataCheckPlafondSIKP.GetStatusDescription() == "Data ditemukan" {
 
 					resultData := []DataPlafondSIKP{}
 
 					for _, vData := range response.GetEmbedDataCheckPlafondSIKP().GetDataCheckPlafondSIKP() {
 
 						data := DataPlafondSIKP{
-							KtpNumber:          vData.GetKtpNumber(),
-							Scheme:             vData.GetScheme(),
-							SchemeDescription:  "",
+							KtpNumber: vData.GetKtpNumber(),
+							Scheme:    vData.GetScheme(),
+							// SchemeDescription:  "",
 							TotalLimitDefault:  vData.GetTotalLimitDefault(),
 							TotalLimit:         vData.GetTotalLimit(),
 							LimitActiveDefault: vData.GetLimitActiveDefault(),

@@ -11,11 +11,11 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"3party/constants"
-	pb "3party/delivery/proto/3party"
-	Helpers "3party/helpers"
+	Constants "pinang-mikro-3party/constants"
+	pb "pinang-mikro-3party/delivery/proto/3party"
+	Helpers "pinang-mikro-3party/helpers"
 
-	Config "3party/config"
+	Config "pinang-mikro-3party/config"
 )
 
 type Server struct {
@@ -114,10 +114,10 @@ func (s *Server) VerificationSIKP(ctx context.Context, request *pb.VerificationS
 					dataLog := Config.LoggingCloudPubSub{
 						Status:       "400",
 						TypeLog:      typeLog,
-						Endpoint:     constants.EndpointSIKPVerification,
+						Endpoint:     Constants.EndpointSIKPVerification,
 						UserId:       userId,
-						ActionDate:   time.Now().Format(constants.FullLayoutTime),
-						Description:  constants.Desc3PartyLogging,
+						ActionDate:   time.Now().Format(Constants.FullLayoutTime),
+						Description:  Constants.Desc3PartyLogging,
 						DataRequest:  string(dataRequest),
 						DataResponse: string(dataResponse),
 					}
@@ -160,10 +160,10 @@ func (s *Server) VerificationSIKP(ctx context.Context, request *pb.VerificationS
 					dataLog := Config.LoggingCloudPubSub{
 						Status:       "400",
 						TypeLog:      typeLog,
-						Endpoint:     constants.EndpointSIKPVerification,
+						Endpoint:     Constants.EndpointSIKPVerification,
 						UserId:       userId,
-						ActionDate:   time.Now().Format(constants.FullLayoutTime),
-						Description:  constants.Desc3PartyLogging,
+						ActionDate:   time.Now().Format(Constants.FullLayoutTime),
+						Description:  Constants.Desc3PartyLogging,
 						DataRequest:  string(dataRequest),
 						DataResponse: string(dataResponse),
 					}
@@ -210,10 +210,10 @@ func (s *Server) VerificationSIKP(ctx context.Context, request *pb.VerificationS
 					dataLog := Config.LoggingCloudPubSub{
 						Status:       "400",
 						TypeLog:      typeLog,
-						Endpoint:     constants.EndpointSIKPVerification,
+						Endpoint:     Constants.EndpointSIKPVerification,
 						UserId:       userId,
-						ActionDate:   time.Now().Format(constants.FullLayoutTime),
-						Description:  constants.Desc3PartyLogging,
+						ActionDate:   time.Now().Format(Constants.FullLayoutTime),
+						Description:  Constants.Desc3PartyLogging,
 						DataRequest:  string(dataRequest),
 						DataResponse: string(dataResponse),
 					}
@@ -256,10 +256,10 @@ func (s *Server) VerificationSIKP(ctx context.Context, request *pb.VerificationS
 					dataLog := Config.LoggingCloudPubSub{
 						Status:       "400",
 						TypeLog:      typeLog,
-						Endpoint:     constants.EndpointSIKPVerification,
+						Endpoint:     Constants.EndpointSIKPVerification,
 						UserId:       userId,
-						ActionDate:   time.Now().Format(constants.FullLayoutTime),
-						Description:  constants.Desc3PartyLogging,
+						ActionDate:   time.Now().Format(Constants.FullLayoutTime),
+						Description:  Constants.Desc3PartyLogging,
 						DataRequest:  string(dataRequest),
 						DataResponse: string(dataResponse),
 					}
@@ -317,10 +317,10 @@ func (s *Server) VerificationSIKP(ctx context.Context, request *pb.VerificationS
 			dataLog := Config.LoggingCloudPubSub{
 				Status:       "400",
 				TypeLog:      typeLog,
-				Endpoint:     constants.EndpointSIKPVerification,
+				Endpoint:     Constants.EndpointSIKPVerification,
 				UserId:       userId,
-				ActionDate:   time.Now().Format(constants.FullLayoutTime),
-				Description:  constants.Desc3PartyLogging,
+				ActionDate:   time.Now().Format(Constants.FullLayoutTime),
+				Description:  Constants.Desc3PartyLogging,
 				DataRequest:  string(dataRequest),
 				DataResponse: string(dataResponse),
 			}
@@ -369,10 +369,10 @@ func (s *Server) VerificationSIKP(ctx context.Context, request *pb.VerificationS
 		dataLog := Config.LoggingCloudPubSub{
 			Status:       "200",
 			TypeLog:      typeLog,
-			Endpoint:     constants.EndpointSIKPVerification,
+			Endpoint:     Constants.EndpointSIKPVerification,
 			UserId:       userId,
-			ActionDate:   time.Now().Format(constants.FullLayoutTime),
-			Description:  constants.Desc3PartyLogging,
+			ActionDate:   time.Now().Format(Constants.FullLayoutTime),
+			Description:  Constants.Desc3PartyLogging,
 			DataRequest:  string(dataRequest),
 			DataResponse: string(dataResponse),
 		}
@@ -455,10 +455,10 @@ func (s *Server) CheckPlafondSIKP(ctx context.Context, request *pb.CheckPlafondS
 					dataLog := Config.LoggingCloudPubSub{
 						Status:       "400",
 						TypeLog:      typeLog,
-						Endpoint:     constants.EndpointSIKPCheckPlafond,
+						Endpoint:     Constants.EndpointSIKPCheckPlafond,
 						UserId:       userId,
-						ActionDate:   time.Now().Format(constants.FullLayoutTime),
-						Description:  constants.Desc3PartyLogging,
+						ActionDate:   time.Now().Format(Constants.FullLayoutTime),
+						Description:  Constants.Desc3PartyLogging,
 						DataRequest:  string(dataRequest),
 						DataResponse: string(dataResponse),
 					}
@@ -501,10 +501,10 @@ func (s *Server) CheckPlafondSIKP(ctx context.Context, request *pb.CheckPlafondS
 					dataLog := Config.LoggingCloudPubSub{
 						Status:       "400",
 						TypeLog:      typeLog,
-						Endpoint:     constants.EndpointSIKPCheckPlafond,
+						Endpoint:     Constants.EndpointSIKPCheckPlafond,
 						UserId:       userId,
-						ActionDate:   time.Now().Format(constants.FullLayoutTime),
-						Description:  constants.Desc3PartyLogging,
+						ActionDate:   time.Now().Format(Constants.FullLayoutTime),
+						Description:  Constants.Desc3PartyLogging,
 						DataRequest:  string(dataRequest),
 						DataResponse: string(dataResponse),
 					}
@@ -551,10 +551,10 @@ func (s *Server) CheckPlafondSIKP(ctx context.Context, request *pb.CheckPlafondS
 					dataLog := Config.LoggingCloudPubSub{
 						Status:       "400",
 						TypeLog:      typeLog,
-						Endpoint:     constants.EndpointSIKPCheckPlafond,
+						Endpoint:     Constants.EndpointSIKPCheckPlafond,
 						UserId:       userId,
-						ActionDate:   time.Now().Format(constants.FullLayoutTime),
-						Description:  constants.Desc3PartyLogging,
+						ActionDate:   time.Now().Format(Constants.FullLayoutTime),
+						Description:  Constants.Desc3PartyLogging,
 						DataRequest:  string(dataRequest),
 						DataResponse: string(dataResponse),
 					}
@@ -597,10 +597,10 @@ func (s *Server) CheckPlafondSIKP(ctx context.Context, request *pb.CheckPlafondS
 					dataLog := Config.LoggingCloudPubSub{
 						Status:       "400",
 						TypeLog:      typeLog,
-						Endpoint:     constants.EndpointSIKPCheckPlafond,
+						Endpoint:     Constants.EndpointSIKPCheckPlafond,
 						UserId:       userId,
-						ActionDate:   time.Now().Format(constants.FullLayoutTime),
-						Description:  constants.Desc3PartyLogging,
+						ActionDate:   time.Now().Format(Constants.FullLayoutTime),
+						Description:  Constants.Desc3PartyLogging,
 						DataRequest:  string(dataRequest),
 						DataResponse: string(dataResponse),
 					}
@@ -656,10 +656,10 @@ func (s *Server) CheckPlafondSIKP(ctx context.Context, request *pb.CheckPlafondS
 			dataLog := Config.LoggingCloudPubSub{
 				Status:       "400",
 				TypeLog:      typeLog,
-				Endpoint:     constants.EndpointSIKPCheckPlafond,
+				Endpoint:     Constants.EndpointSIKPCheckPlafond,
 				UserId:       userId,
-				ActionDate:   time.Now().Format(constants.FullLayoutTime),
-				Description:  constants.Desc3PartyLogging,
+				ActionDate:   time.Now().Format(Constants.FullLayoutTime),
+				Description:  Constants.Desc3PartyLogging,
 				DataRequest:  string(dataRequest),
 				DataResponse: string(dataResponse),
 			}
@@ -689,8 +689,11 @@ func (s *Server) CheckPlafondSIKP(ctx context.Context, request *pb.CheckPlafondS
 		limitActive, _ := Helpers.StringInt(vData.LimitAktif)
 		bankCode, _ := Helpers.StringInt(vData.KodeBank)
 
+		//DECODE RESPONSE
+		ktpNumberEncode, _ := Helpers.EncodeStringBase64(vData.Nik)
+
 		data := pb.DataCheckPlafondSIKP{
-			KtpNumber:          vData.Nik,
+			KtpNumber:          ktpNumberEncode,
 			Scheme:             int64(scheme),
 			TotalLimitDefault:  int64(totalLimitDefault),
 			TotalLimit:         int64(totalLimit),
@@ -729,10 +732,10 @@ func (s *Server) CheckPlafondSIKP(ctx context.Context, request *pb.CheckPlafondS
 		dataLog := Config.LoggingCloudPubSub{
 			Status:       "200",
 			TypeLog:      typeLog,
-			Endpoint:     constants.EndpointSIKPCheckPlafond,
+			Endpoint:     Constants.EndpointSIKPCheckPlafond,
 			UserId:       userId,
-			ActionDate:   time.Now().Format(constants.FullLayoutTime),
-			Description:  constants.Desc3PartyLogging,
+			ActionDate:   time.Now().Format(Constants.FullLayoutTime),
+			Description:  Constants.Desc3PartyLogging,
 			DataRequest:  string(dataRequest),
 			DataResponse: string(dataResponse),
 		}

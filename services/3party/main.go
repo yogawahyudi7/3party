@@ -12,17 +12,17 @@ import (
 	"github.com/joho/godotenv"
 	"google.golang.org/grpc"
 
-	Controller "3party/delivery/controller"
-	pb "3party/delivery/proto/3party"
+	Controller "pinang-mikro-3party/delivery/controller"
+	pb "pinang-mikro-3party/delivery/proto/3party"
 
-	Config "3party/config"
+	Config "pinang-mikro-3party/config"
 )
 
 func init() {
 	// local active
-	err := godotenv.Load("services/3party/service-dev.env")
+	// err := godotenv.Load("services/3party/service-dev.env")
 	// err := godotenv.Load("services/3party/service-staging.env")
-	// err := godotenv.Load(".env")
+	err := godotenv.Load(".env")
 	if err != nil {
 		log.Println(err.Error())
 		log.Fatal("Error loading .env file")

@@ -1,4 +1,4 @@
-module 3party
+module pinang-mikro-3party
 
 go 1.17
 

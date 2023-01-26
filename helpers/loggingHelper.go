@@ -6,7 +6,7 @@ import (
 
 	"github.com/go-redis/redis/v8"
 
-	Config "3party/config"
+	Config "pinang-mikro-3party/config"
 )
 
 func LoggingCloudPubSub(wg *sync.WaitGroup, params string, channelLog string) (status int, response string) {

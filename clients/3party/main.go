@@ -7,15 +7,15 @@ import (
 
 	"github.com/joho/godotenv"
 
-	Config "3party/config"
-	Routes "3party/delivery/routes"
+	Config "pinang-mikro-3party/config"
+	Routes "pinang-mikro-3party/delivery/routes"
 )
 
 func init() {
 	// local active
-	err := godotenv.Load("clients/3party/client-dev.env")
+	// err := godotenv.Load("clients/3party/client-dev.env")
 	// err := godotenv.Load("clients/3party/client-staging.env")
-	// err := godotenv.Load(".env")
+	err := godotenv.Load(".env")
 	if err != nil {
 		log.Println(err.Error())
 		log.Fatal("Error loading .env file")

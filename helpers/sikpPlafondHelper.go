@@ -1,8 +1,6 @@
 package helpers
 
 import (
-	Config "3party/config"
-	Constants "3party/constants"
 	"bytes"
 	"encoding/xml"
 	"fmt"
@@ -10,6 +8,8 @@ import (
 	"log"
 	"net/http"
 	"os"
+	Config "pinang-mikro-3party/config"
+	Constants "pinang-mikro-3party/constants"
 	"strings"
 	"time"
 
@@ -168,7 +168,7 @@ func CurlPlafondSIKP(params CurlPlafondSIKPParams) (response CurlPlafondSIKPResp
 		// log.Println("Helper --- ERROR STATUS CODE CURL PLAFOND SIKP ---")
 		// log.Println("Helper --- ERROR STATUS CODE CURL PLAFOND SIKP : ", curlResponse.StatusCode)
 
-		joinString := []string{"Status Code : ", "-", " | Error : ", data.Body.Fault.FaultString}
+		joinString := []string{"Status Code : ", "Web Service Error", " | Error : ", data.Body.Fault.FaultString}
 		erorrMessage := strings.Join(joinString, "")
 
 		response := CurlPlafondSIKPResponse{

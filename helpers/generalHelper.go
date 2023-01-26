@@ -12,8 +12,8 @@ import (
 	"strings"
 	"sync"
 
-	Config "3party/config"
-	Constants "3party/constants"
+	Config "pinang-mikro-3party/config"
+	Constants "pinang-mikro-3party/constants"
 
 	"golang.org/x/text/language"
 	"golang.org/x/text/message"
@@ -326,5 +326,14 @@ func DecodeStringBase64(text string) (result string, status int) {
 	}
 
 	result = string(decodeString)
+	return result, status
+}
+
+func EncodeStringBase64(text string) (result string, status int) {
+	status = 200
+
+	encodeString := base64.StdEncoding.EncodeToString([]byte(text))
+
+	result = string(encodeString)
 	return result, status
 }
