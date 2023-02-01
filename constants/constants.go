@@ -35,6 +35,6 @@ const (
 	DataNotFoundMessage    = "Data Tidak Ditemukan."
 	SuccessProccessMessage = "Success Process."
 	FailedProccessMessage  = "Failed Process."
-	MessageOutOfService    = "Maaf, Untuk saat ini kamu belum bisa mengirimkan data mitramu karena sudah melewati masa operational kami diatas jam 23.00 WIB. Kamu dapat mengirimkan kembali pukul 06.00 WIB. Terima kasih."
+	MessageOutOfService    = "Maaf, Untuk saat ini kamu belum bisa mengirimkan datamu karena sudah melewati masa operational kami diatas jam 23.00 WIB. Kamu dapat mengirimkan kembali pukul 06.00 WIB. Terima kasih."
 	ErorrGeneralMessage    = "Maaf, Server sedang dalam perbaikan. Silahkan coba beberapa saat lagi."
 )

@@ -74,7 +74,7 @@ func RouterMain() http.Handler {
 	router := gin.New()
 
 	// use middleware out of service
-	router.Use(OutOfServiceTime())
+	// router.Use(OutOfServiceTime())
 
 	// use middleware logging
 	router.Use(gin.LoggerWithFormatter(func(param gin.LogFormatterParams) string {
