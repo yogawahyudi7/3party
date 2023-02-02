@@ -13,9 +13,9 @@ import (
 
 func init() {
 	// local active
-	// err := godotenv.Load("clients/3party/client-dev.env")
+	err := godotenv.Load("clients/3party/client-dev.env")
 	// err := godotenv.Load("clients/3party/client-staging.env")
-	err := godotenv.Load(".env")
+	// err := godotenv.Load(".env")
 	if err != nil {
 		log.Println(err.Error())
 		log.Fatal("Error loading .env file")

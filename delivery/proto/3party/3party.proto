@@ -63,6 +63,76 @@ message DataCheckPlafondSIKP {
     int64 bankCode = 7;
 }
 
+// submit Jamkrindo Calon
+message SubmitJamkrindoCalonRequest {
+    string AlamatDebitur = 1;
+    string AlamatUsaha = 2;
+    string CabangRekanan = 3;
+    string Cif = 4;
+    string Coverage = 5;
+    string FlagTransfer = 6;
+    string IDCalonDebiturKur = 7;
+    string JangkaWaktu = 8;
+    string JenisAgunan = 9;
+    string JenisIdentitas = 10;
+    string JenisKelamin = 11;
+    string JenisKredit = 12;
+    string JenisKur = 13;
+    string JenisLinkage = 14;
+    string JenisPengikatan = 15;
+    string JmlTKerja = 16;
+    string KodeBank = 17;
+    string KodePekerjaan = 18;
+    string KodePos = 19;
+    string KodeSektor = 20;
+    string KodeUker = 21;
+    string LembagaLinkage = 22;
+    string ModalUsaha = 23;
+    string NamaDebitur = 24;
+    string NilaiAgunan = 25;
+    string NoHp = 26;
+    string NoIdentitas = 27;
+    string NoIjinUsaha = 28;
+    string NoPk = 29;
+    string NoRekening = 30;
+    string NoTelepon = 31;
+    string NomorAplikasi = 32;
+    string Npwp = 33;
+    string PlafonKredit = 34;
+    string StatusAplikasi = 35;
+    string StatusKolektibilitas = 36;
+    string StatusLunas = 37;
+    string SukuBunga = 38;
+    string TanggalAkhir = 39;
+    string TanggalAwal = 40;
+    string TanggalLahir = 41;
+    string TanggalMulaiUsaha = 42;
+    string TanggalPk = 43;
+    string TanggalRekam = 44;
+    string UsahaProduktif = 45;
+}
+
+message SubmitJamkrindoCalonResponse {
+    int64 status = 1;
+    string message = 2;
+    string messageLocal = 3;
+
+    EmbedDatasubmitJamkrindoCalon EmbedDatasubmitJamkrindoCalon = 4;
+}
+message EmbedDatasubmitJamkrindoCalon {
+    int64 statusCode = 1;
+    string statusDescription = 2;
+
+    repeated DatasubmitJamkrindoCalon DatasubmitJamkrindoCalon = 3;
+}
+message DatasubmitJamkrindoCalon {
+    string NoIjinPrinsip = 1;
+    string NoSertifikat = 2;
+    string NomorUrut = 3;
+    string TglIjinPrinsip = 4;
+    string TglSertifikat = 5;
+}
+
 //SERVICE START
 service ThirdPartyService {
     rpc Testing (TestingRequest) returns (TestingResponse);
@@ -70,4 +140,7 @@ service ThirdPartyService {
     //SIKP
     rpc VerificationSIKP (VerificationSIKPRequest) returns (VerificationSIKPReponse);
     rpc CheckPlafondSIKP (CheckPlafondSIKPRequest) returns (CheckPlafondSIKPReponse);
+
+    //submit Jamkrindo Calon
+    rpc VerificationJamkrindo (SubmitJamkrindoCalonRequest) returns (SubmitJamkrindoCalonResponse);
 }

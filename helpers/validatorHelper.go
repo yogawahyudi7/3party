@@ -1,10 +1,22 @@
 package helpers
 
 import (
+	"fmt"
 	"log"
 	"regexp"
 
-	"github.com/go-playground/validator/v10"
+	"github.com/go-playground/locales/id"
+	ut "github.com/go-playground/universal-translator"
+
+	// "github.com/go-playground/validator/v10"
+	"gopkg.in/go-playground/validator.v9"
+	id_translations "gopkg.in/go-playground/validator.v9/translations/id"
+)
+
+var (
+	validate  *validator.Validate
+	uni       *ut.UniversalTranslator
+	validates *validator.Validate
 )
 
 type ValidateStruct struct {
@@ -27,7 +39,7 @@ type ValidateAplhaNumericStruct struct {
 	Text string `validate:"text"`
 }
 
-var validate *validator.Validate
+// var validate *validator.Validate
 
 // custom validator
 func ValidateName(fl validator.FieldLevel) bool {
@@ -221,4 +233,229 @@ func ValidatorKtpNumber(text string) (status int, errorMessage string, errorMess
 	}
 
 	return status, errorMessage, errorMessageLocal
+}
+
+func CustomeValidateRequest(model interface{}) (status int64, errMsg, errMsgLocal string) {
+	status = 200
+
+	validate := validator.New()
+	validate.RegisterValidation("name", IsName)
+	validate.RegisterValidation("text", IsText)
+	validate.RegisterValidation("float", IsFloat)
+	validate.RegisterValidation("dateString", IsDateTime)
+	validate.RegisterValidation("numnonzero", IsNumberMoreThanZero)
+	validate.RegisterValidation("alnumspecial", IsTextAlphaNumSpecial)
+	validate.RegisterValidation("address", IsAddress)
+
+	err := validate.Struct(model)
+	id := id.New()
+	uni = ut.New(id, id)
+	trans, _ := uni.GetTranslator("id")
+
+	id_translations.RegisterDefaultTranslations(validate, trans)
+	if err != nil {
+		for _, errFiled := range err.(validator.ValidationErrors) {
+			fmt.Println("========= INI ERROR FILED : ", errFiled.Field())
+			fmt.Println("========= INI ERROR FILED : ", errFiled.Value())
+			switch errFiled.Tag() {
+			case "required":
+				AddCustomeErrorMessage(errFiled.Tag(), "Belum di isi", validate, trans)
+
+				status = 400
+				errMsg = errFiled.Translate(trans)
+				errMsgLocal = errFiled.Translate(trans)
+
+				return status, errMsg, errMsgLocal
+
+			case "numeric":
+				AddCustomeErrorMessage(errFiled.Tag(), "Harus Berupa Numeric", validate, trans)
+
+				status = 400
+				errMsg = errFiled.Translate(trans)
+				errMsgLocal = errFiled.Translate(trans)
+
+				return status, errMsg, errMsgLocal
+
+			case "number":
+				AddCustomeErrorMessage(errFiled.Tag(), "Harus Berupa Angka dan tidak kecil dari 0.", validate, trans)
+
+				status = 400
+				errMsg = errFiled.Translate(trans)
+				errMsgLocal = "Parameter " + errFiled.Field() + " Tidak Sesuai"
+
+				return status, errMsg, errMsgLocal
+
+			case "name":
+				AddCustomeErrorMessage(errFiled.Tag(), "Harus Berupa huruf", validate, trans)
+
+				status = 400
+				errMsg = errFiled.Translate(trans)
+				errMsgLocal = errFiled.Translate(trans)
+
+				return status, errMsg, errMsgLocal
+
+			case "float":
+				AddCustomeErrorMessage(errFiled.Tag(), "Harus berupa Angka atau Angka Decimal", validate, trans)
+
+				status = 400
+				errMsg = errFiled.Translate(trans)
+				errMsgLocal = "Parameter " + errFiled.Field() + " Tidak Sesuai"
+
+				return status, errMsg, errMsgLocal
+
+			case "text":
+				AddCustomeErrorMessage(errFiled.Tag(), "Harus berupa huruf", validate, trans)
+
+				status = 400
+				errMsg = errFiled.Translate(trans)
+				errMsgLocal = errFiled.Translate(trans)
+
+				return status, errMsg, errMsgLocal
+
+			case "address":
+				AddCustomeErrorMessage(errFiled.Tag(), "Tidak boleh memuat karakter spesial", validate, trans)
+
+				status = 400
+				errMsg = errFiled.Translate(trans)
+				errMsgLocal = errFiled.Translate(trans)
+
+				return status, errMsg, errMsgLocal
+
+			case "alnumspecial":
+				AddCustomeErrorMessage(errFiled.Tag(), "Harus berupa huruf, karakter spesial (-), dan angka. Contoh: (abc-123)", validate, trans)
+
+				status = 400
+				errMsg = errFiled.Translate(trans)
+				errMsgLocal = errFiled.Translate(trans)
+
+				return status, errMsg, errMsgLocal
+
+			case "dateString":
+				AddCustomeErrorMessage(errFiled.Tag(), "Format tanggal tidak sesuai. (Format : Y-m-d)", validate, trans)
+
+				status = 400
+				errMsg = errFiled.Translate(trans)
+				errMsgLocal = errFiled.Translate(trans)
+
+				return status, errMsg, errMsgLocal
+
+			case "numnonzero":
+				AddCustomeErrorMessage(errFiled.Tag(), "Harus Berupa Angka dan Tidak Sama dengan 0", validate, trans)
+
+				status = 400
+				errMsg = errFiled.Translate(trans)
+				errMsgLocal = errFiled.Translate(trans)
+
+				return status, errMsg, errMsgLocal
+
+			case "ne": // ne = not equal
+				if errFiled.Field() == "UserId" || errFiled.Field() == "PrakarsaId" || errFiled.Field() == "PartnershipMemberId" || errFiled.Field() == "PipelineId" {
+					AddCustomeErrorMessage(errFiled.Tag(), "Tidak Ditemukan", validate, trans)
+
+					status = 400
+					errMsg = errFiled.Translate(trans)
+					errMsgLocal = errFiled.Translate(trans)
+
+					return status, errMsg, errMsgLocal
+				}
+
+			}
+		}
+
+	}
+	return status, errMsg, errMsgLocal
+}
+
+func IsFloat(fl validator.FieldLevel) bool {
+	regexExp := regexp.MustCompile(`^(\d|[1-9]+\d*|\.\d+|0\.\d+|[1-9]+\d*\.\d+)$`)
+	checking := regexExp.MatchString(fl.Field().String())
+
+	log.Println("String float : ", fl.Field().String())
+	log.Println("Result float : ", checking)
+
+	return checking
+}
+
+func IsDateTime(fl validator.FieldLevel) bool {
+	regexExp := regexp.MustCompile(`^((19|20)\d\d)[-](0?[1-9]|1[012])[-](0?[1-9]|[12][0-9]|3[01])$`)
+	return regexExp.MatchString(fl.Field().String())
+}
+
+func IsTextAlphaNumSpecial(fl validator.FieldLevel) bool {
+	regexExp := regexp.MustCompile(`^[a-zA-Z]+\-[0-9]+$`)
+	return regexExp.MatchString(fl.Field().String())
+}
+
+func IsText(fl validator.FieldLevel) bool {
+	regexExp := regexp.MustCompile(`^[a-z A-Z \- ]*$`)
+	return regexExp.MatchString(fl.Field().String())
+}
+
+func IsName(fl validator.FieldLevel) bool {
+	regexExp := regexp.MustCompile(`^[a-z A-Z]*$`)
+	return regexExp.MatchString(fl.Field().String())
+}
+
+func IsAddress(fl validator.FieldLevel) bool {
+	regexExp := regexp.MustCompile(`^[a-z A-Z 0-9\. ]*$`)
+	checking := regexExp.MatchString(fl.Field().String())
+
+	log.Println("String Value :", fl.Field().String())
+	log.Println("String Result :", checking)
+	return checking
+}
+
+func IsNumberMoreThanZero(fl validator.FieldLevel) bool {
+	reg := regexp.MustCompile("^[1-90-9]*$")
+	return reg.MatchString(fl.Field().String())
+}
+
+func AliasString(str string) string {
+	switch str {
+	case "Year":
+		return "Tahun"
+	case "Month":
+		return "Bulan"
+	case "SkppDate":
+		return "Tanggal SKPP"
+	case "UserId":
+		return "User"
+	case "id":
+		return "ID"
+	case "PipelineId":
+		return "Pipeline ID"
+	case "PartnershipCode":
+		return "Kode Partnership"
+	case "BranchCode":
+		return "Kode Cabang"
+	case "PrakarsaId":
+		return "Prakarsa"
+	case "partnershipMemberId":
+		return "Member ID Partner"
+	case "EstimationLoan":
+		return "Estimasi Pinjaman"
+	case "RecordCount":
+		return "Limit Data"
+	case "StartIndex":
+		return "Offset Data"
+
+	default:
+		return str
+	}
+}
+
+func AddCustomeErrorMessage(Tag string, messageError string, validate *validator.Validate, trans ut.Translator) {
+	validate.RegisterTranslation(Tag, trans, func(ut ut.Translator) error {
+		return ut.Add(Tag, "{0} "+messageError, true) // see universal-translator for details
+	}, func(ut ut.Translator, fe validator.FieldError) string {
+		var t string
+		switch fe.Field() {
+		case "UserId", "PrakarsaId", "PartnershipMemberId", "PipelineId", "EstimationLoan", "RecordCount", "StartIndex":
+			t, _ = ut.T(Tag, "Maaf Parameter "+AliasString(fe.Field()))
+		default:
+			t, _ = ut.T(Tag, fe.Field())
+		}
+
+		return t
+	})
 }
