@@ -749,7 +749,7 @@ func (s *Server) CheckPlafondSIKP(ctx context.Context, request *pb.CheckPlafondS
 	return response, nil
 }
 
-func (s *Server) submitJamkrindoCalon(ctx context.Context, request *pb.SubmitJamkrindoCalonRequest) (*pb.SubmitJamkrindoCalonResponse, error) {
+func (s *Server) SubmitJamkrindoCalon(ctx context.Context, request *pb.SubmitJamkrindoCalonRequest) (*pb.SubmitJamkrindoCalonResponse, error) {
 	t := time.Now()
 	formatDate := t.Format("20060102")
 	logJoin := []string{"logs", "/", "services", "/", "3party", "/", "log", "-", formatDate, ".log"}
@@ -929,7 +929,7 @@ func (s *Server) submitJamkrindoCalon(ctx context.Context, request *pb.SubmitJam
 	var dataResult Helpers.CurlSubmitJamkrindoCalonMapping
 	responseResult, dataResult = Helpers.CurlSubmitJamkrindoCalon(params)
 
-	log.Println("Service ** RESULT QUERY PLAFOND SIKP **")
+	log.Println("Service ** RESULT QUERY Submit Jamkrindo Calon **")
 	log.Println(responseResult)
 	log.Println(dataResult)
 
@@ -957,7 +957,7 @@ func (s *Server) submitJamkrindoCalon(ctx context.Context, request *pb.SubmitJam
 			dataLog := Config.LoggingCloudPubSub{
 				Status:       "400",
 				TypeLog:      typeLog,
-				Endpoint:     Constants.EndpointSIKPCheckPlafond,
+				Endpoint:     Constants.EndpointSubmitJamkrindoCalon,
 				UserId:       "",
 				ActionDate:   time.Now().Format(Constants.FullLayoutTime),
 				Description:  Constants.Desc3PartyLogging,
@@ -976,7 +976,7 @@ func (s *Server) submitJamkrindoCalon(ctx context.Context, request *pb.SubmitJam
 	}
 
 	//response success
-	typeLog = "success-check-plafond-sikp"
+	typeLog = "success-submit-jamkrindo-calon"
 
 	intStatusCode, _ := Helpers.StringInt(dataResult.Body.Response.Result.Code)
 
@@ -1027,7 +1027,275 @@ func (s *Server) submitJamkrindoCalon(ctx context.Context, request *pb.SubmitJam
 		dataLog := Config.LoggingCloudPubSub{
 			Status:       "200",
 			TypeLog:      typeLog,
-			Endpoint:     Constants.EndpointSIKPCheckPlafond,
+			Endpoint:     Constants.EndpointSubmitJamkrindoCalon,
+			UserId:       "",
+			ActionDate:   time.Now().Format(Constants.FullLayoutTime),
+			Description:  Constants.Desc3PartyLogging,
+			DataRequest:  string(dataRequest),
+			DataResponse: string(dataResponse),
+		}
+
+		logData, _ := json.Marshal(dataLog)
+		jsonDataLog := string(logData)
+
+		Helpers.PubLoggingCloud(jsonDataRequest, jsonDataResponse, jsonDataLog)
+
+	}
+	return response, nil
+}
+
+func (s *Server) JamkrindoKlaim(ctx context.Context, request *pb.JamkrindoKlaimRequest) (*pb.JamkrindoKlaimResponse, error) {
+	t := time.Now()
+	formatDate := t.Format("20060102")
+	logJoin := []string{"logs", "/", "services", "/", "3party", "/", "log", "-", formatDate, ".log"}
+	logFile := strings.Join(logJoin, "")
+	_, err := os.Stat(logFile)
+
+	//check exist file log
+	f, _ := os.OpenFile(logFile, os.O_RDWR|os.O_APPEND, 0755)
+	if os.IsNotExist(err) {
+		f, _ = os.OpenFile(logFile, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0755)
+
+	}
+	// Use the following code if you need to write the logs to file and console at the same time.
+	gin.DefaultWriter = io.MultiWriter(f, os.Stdout)
+
+	log.SetOutput(gin.DefaultWriter)
+
+	response := &pb.JamkrindoKlaimResponse{
+		Status:              0,
+		Message:             "-",
+		MessageLocal:        "-",
+		EmbedJamkrindoKlaim: nil,
+	}
+
+	typeLog := ""
+	//REQUEST PARAMETER
+	CabangRekanan := request.GetCabangRekanan()
+	JenisAgunan := request.GetJenisAgunan()
+	JenisKredit := request.GetJenisKredit()
+	JenisKur := request.GetJenisKur()
+	JenisPengikatan := request.GetJenisPengikatan()
+	JumlahKerugian := request.GetJumlahKerugian()
+	KodeBank := request.GetKodeBank()
+	KodeLbu := request.GetKodeLbu()
+	KodeUker := request.GetKodeUker()
+	NamaDebitur := request.GetNamaDebitur()
+	NilaiPengikatan := request.GetNilaiPengikatan()
+	NilaiPenjaminan := request.GetNilaiPenjaminan()
+	NilaiPersen := request.GetNilaiPersen()
+	NilaiTuntutanKlaim := request.GetNilaiTuntutanKlaim()
+	NoRekening := request.GetNoRekening()
+	NoSp2 := request.GetNoSp2()
+	NoSpk := request.GetNoSpk()
+	NomorPk := request.GetNomorPk()
+	NomorSsertifikat := request.GetNomorSsertifikat()
+	PenggunaanKredit := request.GetPenggunaanKredit()
+	Periode := request.GetPeriode()
+	Plafond := request.GetPlafond()
+	SebabKlaim := request.GetSebabKlaim()
+	TglJatuhTempo := request.GetTglJatuhTempo()
+	TglMulai := request.GetTglMulai()
+	TglSp2 := request.GetTglSp2()
+	TglSpk := request.GetTglSpk()
+	TglSsertifikat := request.GetTglSsertifikat()
+	TglStatus := request.GetTglStatus()
+	Tindakan1 := request.GetTindakan1()
+	Tindakan2 := request.GetTindakan2()
+	Tindakan3 := request.GetTindakan3()
+	Tindakan4 := request.GetTindakan4()
+	Tindakan5 := request.GetTindakan5()
+	TunggakanBunga := request.GetTunggakanBunga()
+	TunggakanDenda := request.GetTunggakanDenda()
+	TunggakanPokok := request.GetTunggakanPokok()
+
+	//REQUEST FOR LOGGING
+	requestData := map[string]interface{}{
+		"CabangRekanan":      CabangRekanan,
+		"JenisAgunan":        JenisAgunan,
+		"JenisKredit":        JenisKredit,
+		"JenisKur":           JenisKur,
+		"JenisPengikatan":    JenisPengikatan,
+		"JumlahKerugian":     JumlahKerugian,
+		"KodeBank":           KodeBank,
+		"KodeLbu":            KodeLbu,
+		"KodeUker":           KodeUker,
+		"NamaDebitur":        NamaDebitur,
+		"NilaiPengikatan":    NilaiPengikatan,
+		"NilaiPenjaminan":    NilaiPenjaminan,
+		"NilaiPersen":        NilaiPersen,
+		"NilaiTuntutanKlaim": NilaiTuntutanKlaim,
+		"NoRekening":         NoRekening,
+		"NoSp2":              NoSp2,
+		"NoSpk":              NoSpk,
+		"NomorPk":            NomorPk,
+		"NomorSsertifikat":   NomorSsertifikat,
+		"PenggunaanKredit":   PenggunaanKredit,
+		"Periode":            Periode,
+		"Plafond":            Plafond,
+		"SebabKlaim":         SebabKlaim,
+		"TglJatuhTempo":      TglJatuhTempo,
+		"TglMulai":           TglMulai,
+		"TglSp2":             TglSp2,
+		"TglSpk":             TglSpk,
+		"TglSsertifikat":     TglSsertifikat,
+		"TglStatus":          TglStatus,
+		"Tindakan1":          Tindakan1,
+		"Tindakan2":          Tindakan2,
+		"Tindakan3":          Tindakan3,
+		"Tindakan4":          Tindakan4,
+		"Tindakan5":          Tindakan5,
+		"TunggakanBunga":     TunggakanBunga,
+		"TunggakanDenda":     TunggakanDenda,
+		"TunggakanPokok":     TunggakanPokok,
+	}
+	dataRequest, _ := json.Marshal(requestData)
+	jsonDataRequest := string(dataRequest)
+
+	//DECODE PARAMETER
+
+	//CURL Jamkrindo Klaim
+	typeLog = "curl-jamkrindo-klaim"
+
+	params := Helpers.CurlJamkrindoKlaimParams{
+		CabangRekanan:      CabangRekanan,
+		JenisAgunan:        JenisAgunan,
+		JenisKredit:        JenisKredit,
+		JenisKur:           JenisKur,
+		JenisPengikatan:    JenisPengikatan,
+		JumlahKerugian:     JumlahKerugian,
+		KodeBank:           KodeBank,
+		KodeLbu:            KodeLbu,
+		KodeUker:           KodeUker,
+		NamaDebitur:        NamaDebitur,
+		NilaiPengikatan:    NilaiPengikatan,
+		NilaiPenjaminan:    NilaiPenjaminan,
+		NilaiPersen:        NilaiPersen,
+		NilaiTuntutanKlaim: NilaiTuntutanKlaim,
+		NoRekening:         NoRekening,
+		NoSp2:              NoSp2,
+		NoSpk:              NoSpk,
+		NomorPk:            NomorPk,
+		NomorSsertifikat:   NomorSsertifikat,
+		PenggunaanKredit:   PenggunaanKredit,
+		Periode:            Periode,
+		Plafond:            Plafond,
+		SebabKlaim:         SebabKlaim,
+		TglJatuhTempo:      TglJatuhTempo,
+		TglMulai:           TglMulai,
+		TglSp2:             TglSp2,
+		TglSpk:             TglSpk,
+		TglSsertifikat:     TglSsertifikat,
+		TglStatus:          TglStatus,
+		Tindakan1:          Tindakan1,
+		Tindakan2:          Tindakan2,
+		Tindakan3:          Tindakan3,
+		Tindakan4:          Tindakan4,
+		Tindakan5:          Tindakan5,
+		TunggakanBunga:     TunggakanBunga,
+		TunggakanDenda:     TunggakanDenda,
+		TunggakanPokok:     TunggakanPokok,
+	}
+
+	var responseResult Helpers.CurlJamkrindoKlaimResponse
+	var dataResult Helpers.CurlJamkrindoKlaimMapping
+	responseResult, dataResult = Helpers.CurlJamkrindoKlaim(params)
+
+	log.Println("Service ** RESULT QUERY Jamkrindo Klaim **")
+	log.Println(responseResult)
+	log.Println(dataResult)
+
+	//response success
+	if responseResult.Status != 200 {
+		response = &pb.JamkrindoKlaimResponse{
+			Status:              int64(responseResult.Status),
+			Message:             responseResult.Message,
+			MessageLocal:        responseResult.MessageLocal,
+			EmbedJamkrindoKlaim: nil,
+		}
+
+		//PROCESS TO LOGGING CLOUD
+		{
+			// DATA RESPONSE
+			strStatusCode, _ := Helpers.IntString(400)
+			responseData := map[string]interface{}{
+				"statusCode":   strStatusCode,
+				"responseData": response,
+			}
+
+			dataResponse, _ := json.Marshal(responseData)
+			jsonDataResponse := string(dataResponse)
+
+			dataLog := Config.LoggingCloudPubSub{
+				Status:       "400",
+				TypeLog:      typeLog,
+				Endpoint:     Constants.EndpointJamkrindoKlaim,
+				UserId:       "",
+				ActionDate:   time.Now().Format(Constants.FullLayoutTime),
+				Description:  Constants.Desc3PartyLogging,
+				DataRequest:  string(dataRequest),
+				DataResponse: string(dataResponse),
+			}
+
+			logData, _ := json.Marshal(dataLog)
+			jsonDataLog := string(logData)
+
+			Helpers.PubLoggingCloud(jsonDataRequest, jsonDataResponse, jsonDataLog)
+
+		}
+		return response, nil
+
+	}
+
+	//response success
+	typeLog = "success-jamkrindo-klaim"
+
+	intStatusCode, _ := Helpers.StringInt(dataResult.Body.Response.Result.Code)
+
+	var resultData []*pb.DataJamkrindoKlaim
+	for _, vData := range dataResult.Body.Response.Result.Data.DataJamkrindoKlaim {
+
+		flagStatus := vData.FlagStatus
+		noRespond := vData.NoRespond
+		tglRespondKlaim := vData.TglRespondKlaim
+
+		data := pb.DataJamkrindoKlaim{
+			FlagStatus:      flagStatus,
+			NomorRespond:    noRespond,
+			TglRespondKlaim: tglRespondKlaim,
+		}
+
+		resultData = append(resultData, &data)
+
+	}
+
+	response = &pb.JamkrindoKlaimResponse{
+		Status:       200,
+		Message:      responseResult.Message,
+		MessageLocal: responseResult.MessageLocal,
+		EmbedJamkrindoKlaim: &pb.EmbedJamkrindoKlaim{
+			StatusCode:         int64(intStatusCode),
+			StatusDescription:  dataResult.Body.Response.Result.Message,
+			DataJamkrindoKlaim: resultData,
+		},
+	}
+
+	//PROCESS TO LOGGING CLOUD
+	{
+		// DATA RESPONSE
+		strStatusCode, _ := Helpers.IntString(400)
+		responseData := map[string]interface{}{
+			"statusCode":   strStatusCode,
+			"responseData": response,
+		}
+
+		dataResponse, _ := json.Marshal(responseData)
+		jsonDataResponse := string(dataResponse)
+
+		dataLog := Config.LoggingCloudPubSub{
+			Status:       "200",
+			TypeLog:      typeLog,
+			Endpoint:     Constants.EndpointJamkrindoKlaim,
 			UserId:       "",
 			ActionDate:   time.Now().Format(Constants.FullLayoutTime),
 			Description:  Constants.Desc3PartyLogging,

@@ -63,6 +63,70 @@ message DataCheckPlafondSIKP {
     int64 bankCode = 7;
 }
 
+//========================== Region Jamkrindo ============================ //
+
+// Jamkrindo Klaim
+message JamkrindoKlaimRequest {
+    string CabangRekanan      = 1;
+    string JenisAgunan        = 2;
+    string JenisKredit        = 3;
+    string JenisKur           = 4;
+    string JenisPengikatan    = 5;
+    string JumlahKerugian     = 6;
+    string KodeBank           = 7;
+    string KodeLbu            = 8;
+    string KodeUker           = 9;
+    string NamaDebitur        = 10;
+    string NilaiPengikatan    = 11;
+    string NilaiPenjaminan    = 12;
+    string NilaiPersen        = 13;
+    string NilaiTuntutanKlaim = 14;
+    string NoRekening         = 15;
+    string NoSp2              = 16;
+    string NoSpk              = 17;
+    string NomorPk            = 18;
+    string NomorSsertifikat   = 19;
+    string PenggunaanKredit   = 20;
+    string Periode            = 21;
+    string Plafond            = 22;
+    string SebabKlaim         = 23;
+    string TglJatuhTempo      = 24;
+    string TglMulai           = 25;
+    string TglSp2             = 26;
+    string TglSpk             = 27;
+    string TglSsertifikat     = 28;
+    string TglStatus          = 29;
+    string Tindakan1          = 30;
+    string Tindakan2          = 31;
+    string Tindakan3          = 32;
+    string Tindakan4          = 33;
+    string Tindakan5          = 34;
+    string TunggakanBunga     = 35;
+    string TunggakanDenda     = 36;
+    string TunggakanPokok     = 37;
+}
+
+message JamkrindoKlaimResponse {
+ int64 status = 1;
+ string message = 2;
+ string messageLocal = 3;
+
+ EmbedJamkrindoKlaim EmbedJamkrindoKlaim = 4;
+}
+
+message EmbedJamkrindoKlaim {
+    int64 statusCode = 1;
+    string statusDescription = 2;
+
+    repeated DataJamkrindoKlaim DataJamkrindoKlaim = 3;
+}
+
+message DataJamkrindoKlaim {
+    string FlagStatus = 1;
+    string NomorRespond = 2;
+    string TglRespondKlaim = 3;
+}
+
 // submit Jamkrindo Calon
 message SubmitJamkrindoCalonRequest {
     string AlamatDebitur = 1;
@@ -141,6 +205,7 @@ service ThirdPartyService {
     rpc VerificationSIKP (VerificationSIKPRequest) returns (VerificationSIKPReponse);
     rpc CheckPlafondSIKP (CheckPlafondSIKPRequest) returns (CheckPlafondSIKPReponse);
 
-    //submit Jamkrindo Calon
-    rpc VerificationJamkrindo (SubmitJamkrindoCalonRequest) returns (SubmitJamkrindoCalonResponse);
+    //====================== Region Jamkrindo ==============================//
+    rpc SubmitJamkrindoCalon (SubmitJamkrindoCalonRequest) returns (SubmitJamkrindoCalonResponse);
+    rpc JamkrindoKlaim (JamkrindoKlaimRequest) returns (JamkrindoKlaimResponse);
 }

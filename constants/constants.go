@@ -28,8 +28,10 @@ const (
 	Desc3PartyLogging = "3party-logging"
 
 	//ENDPOINT
-	EndpointSIKPVerification = "/v/1/sikp/verification"
-	EndpointSIKPCheckPlafond = "/v/1/sikp/check-plafond"
+	EndpointSIKPVerification     = "/v/1/sikp/verification"
+	EndpointSIKPCheckPlafond     = "/v/1/sikp/check-plafond"
+	EndpointSubmitJamkrindoCalon = "v/1/sikp/submit-jamkrindo-calon"
+	EndpointJamkrindoKlaim       = "/v/1/sikp/jamkrindo-klaim"
 
 	DataFoundMessage       = "Data Ditemukan."
 	DataNotFoundMessage    = "Data Tidak Ditemukan."
