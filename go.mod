@@ -49,4 +49,7 @@ require (
 	gorm.io/plugin/dbresolver v1.4.0
 )
 
-require github.com/jinzhu/now v1.1.5 // indirect
+require (
+	github.com/jinzhu/now v1.1.5 // indirect
+	gopkg.in/go-playground/validator.v9 v9.31.0
+)
