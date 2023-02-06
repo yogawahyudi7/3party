@@ -26,6 +26,7 @@ type ThirdPartyServiceClient interface {
 	//SIKP
 	VerificationSIKP(ctx context.Context, in *VerificationSIKPRequest, opts ...grpc.CallOption) (*VerificationSIKPReponse, error)
 	CheckPlafondSIKP(ctx context.Context, in *CheckPlafondSIKPRequest, opts ...grpc.CallOption) (*CheckPlafondSIKPReponse, error)
+	SubmitSIKPTransaksi(ctx context.Context, in *SubmitSIKPTransaksiRequest, opts ...grpc.CallOption) (*SubmitSIKPTransaksiReponse, error)
 	//====================== Region Jamkrindo ==============================//
 	SubmitJamkrindoCalon(ctx context.Context, in *SubmitJamkrindoCalonRequest, opts ...grpc.CallOption) (*SubmitJamkrindoCalonResponse, error)
 	JamkrindoKlaim(ctx context.Context, in *JamkrindoKlaimRequest, opts ...grpc.CallOption) (*JamkrindoKlaimResponse, error)
@@ -66,6 +67,15 @@ func (c *thirdPartyServiceClient) CheckPlafondSIKP(ctx context.Context, in *Chec
 	return out, nil
 }
 
+func (c *thirdPartyServiceClient) SubmitSIKPTransaksi(ctx context.Context, in *SubmitSIKPTransaksiRequest, opts ...grpc.CallOption) (*SubmitSIKPTransaksiReponse, error) {
+	out := new(SubmitSIKPTransaksiReponse)
+	err := c.cc.Invoke(ctx, "/proto.ThirdPartyService/SubmitSIKPTransaksi", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *thirdPartyServiceClient) SubmitJamkrindoCalon(ctx context.Context, in *SubmitJamkrindoCalonRequest, opts ...grpc.CallOption) (*SubmitJamkrindoCalonResponse, error) {
 	out := new(SubmitJamkrindoCalonResponse)
 	err := c.cc.Invoke(ctx, "/proto.ThirdPartyService/SubmitJamkrindoCalon", in, out, opts...)
@@ -92,6 +102,7 @@ type ThirdPartyServiceServer interface {
 	//SIKP
 	VerificationSIKP(context.Context, *VerificationSIKPRequest) (*VerificationSIKPReponse, error)
 	CheckPlafondSIKP(context.Context, *CheckPlafondSIKPRequest) (*CheckPlafondSIKPReponse, error)
+	SubmitSIKPTransaksi(context.Context, *SubmitSIKPTransaksiRequest) (*SubmitSIKPTransaksiReponse, error)
 	//====================== Region Jamkrindo ==============================//
 	SubmitJamkrindoCalon(context.Context, *SubmitJamkrindoCalonRequest) (*SubmitJamkrindoCalonResponse, error)
 	JamkrindoKlaim(context.Context, *JamkrindoKlaimRequest) (*JamkrindoKlaimResponse, error)
@@ -110,6 +121,9 @@ func (UnimplementedThirdPartyServiceServer) VerificationSIKP(context.Context, *V
 }
 func (UnimplementedThirdPartyServiceServer) CheckPlafondSIKP(context.Context, *CheckPlafondSIKPRequest) (*CheckPlafondSIKPReponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CheckPlafondSIKP not implemented")
+}
+func (UnimplementedThirdPartyServiceServer) SubmitSIKPTransaksi(context.Context, *SubmitSIKPTransaksiRequest) (*SubmitSIKPTransaksiReponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SubmitSIKPTransaksi not implemented")
 }
 func (UnimplementedThirdPartyServiceServer) SubmitJamkrindoCalon(context.Context, *SubmitJamkrindoCalonRequest) (*SubmitJamkrindoCalonResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SubmitJamkrindoCalon not implemented")
@@ -184,6 +198,24 @@ func _ThirdPartyService_CheckPlafondSIKP_Handler(srv interface{}, ctx context.Co
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ThirdPartyService_SubmitSIKPTransaksi_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SubmitSIKPTransaksiRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ThirdPartyServiceServer).SubmitSIKPTransaksi(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.ThirdPartyService/SubmitSIKPTransaksi",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ThirdPartyServiceServer).SubmitSIKPTransaksi(ctx, req.(*SubmitSIKPTransaksiRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _ThirdPartyService_SubmitJamkrindoCalon_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(SubmitJamkrindoCalonRequest)
 	if err := dec(in); err != nil {
@@ -238,6 +270,10 @@ var ThirdPartyService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CheckPlafondSIKP",
 			Handler:    _ThirdPartyService_CheckPlafondSIKP_Handler,
+		},
+		{
+			MethodName: "SubmitSIKPTransaksi",
+			Handler:    _ThirdPartyService_SubmitSIKPTransaksi_Handler,
 		},
 		{
 			MethodName: "SubmitJamkrindoCalon",

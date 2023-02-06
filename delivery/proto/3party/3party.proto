@@ -63,6 +63,35 @@ message DataCheckPlafondSIKP {
     int64 bankCode = 7;
 }
 
+message SubmitSIKPTransaksiRequest {
+string NomorRekening = 1;
+string TglTransaksi = 2;
+string TglPelaporan = 3;
+string Limit = 4;
+string Outstanding = 5;
+string AngsuranPokok = 6;
+string Kolektibilitas = 7;
+}
+
+message SubmitSIKPTransaksiReponse {
+    int64 status = 1;
+    string message = 2;
+    string messageLocal = 3;
+
+    EmbedSubmitSIKPTransaksi EmbedSubmitSIKPTransaksi = 4;
+}
+message EmbedSubmitSIKPTransaksi {
+    int64 statusCode = 1;
+    string statusDescription = 2;
+
+    repeated DataSubmitSIKPTransaksi DataSubmitSIKPTransaksi = 3;
+}
+message DataSubmitSIKPTransaksi {
+    bool error = 2;
+    string code = 1;
+    string message = 3;
+}
+
 //========================== Region Jamkrindo ============================ //
 
 // Jamkrindo Klaim
@@ -204,8 +233,10 @@ service ThirdPartyService {
     //SIKP
     rpc VerificationSIKP (VerificationSIKPRequest) returns (VerificationSIKPReponse);
     rpc CheckPlafondSIKP (CheckPlafondSIKPRequest) returns (CheckPlafondSIKPReponse);
+    rpc SubmitSIKPTransaksi (SubmitSIKPTransaksiRequest) returns (SubmitSIKPTransaksiReponse);
 
     //====================== Region Jamkrindo ==============================//
     rpc SubmitJamkrindoCalon (SubmitJamkrindoCalonRequest) returns (SubmitJamkrindoCalonResponse);
     rpc JamkrindoKlaim (JamkrindoKlaimRequest) returns (JamkrindoKlaimResponse);
+
 }
