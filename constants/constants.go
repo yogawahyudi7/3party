@@ -33,6 +33,7 @@ const (
 	EndpointSubmitJamkrindoCalon = "v/1/sikp/submit-jamkrindo-calon"
 	EndpointJamkrindoKlaim       = "/v/1/sikp/jamkrindo-klaim"
 	EndpointSubmitSIKPTransaksi  = "/v/1/sikp/submit-transaksi"
+	EndpointSubmitSIKPAkad       = "/v/1/sikp/submit-akad"
 
 	DataFoundMessage       = "Data Ditemukan."
 	DataNotFoundMessage    = "Data Tidak Ditemukan."
