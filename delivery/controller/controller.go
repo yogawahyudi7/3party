@@ -1432,21 +1432,17 @@ func (s *Server) SubmitSIKPTransaksi(ctx context.Context, request *pb.SubmitSIKP
 	intStatusCode, _ := Helpers.StringInt(dataResult.Body.Response.Result.Code)
 
 	var resultData []*pb.DataSubmitSIKPTransaksi
-	for _, vData := range dataResult.Body.Response.Result.Data.DataJamkrindo {
 
-		error := vData.Error
-		code := vData.Code
-		message := vData.Message
+	error := dataResult.Body.Response.Result.Error
+	code := dataResult.Body.Response.Result.Code
+	message := dataResult.Body.Response.Result.Message
 
-		data := pb.DataSubmitSIKPTransaksi{
-			Code:    code,
-			Error:   error,
-			Message: message,
-		}
-
-		resultData = append(resultData, &data)
-
+	data := pb.DataSubmitSIKPTransaksi{
+		Code:    code,
+		Error:   error,
+		Message: message,
 	}
+	resultData = append(resultData, &data)
 
 	response = &pb.SubmitSIKPTransaksiReponse{
 		Status:       200,
@@ -1475,6 +1471,205 @@ func (s *Server) SubmitSIKPTransaksi(ctx context.Context, request *pb.SubmitSIKP
 			Status:       "200",
 			TypeLog:      typeLog,
 			Endpoint:     Constants.EndpointSubmitSIKPTransaksi,
+			UserId:       "",
+			ActionDate:   time.Now().Format(Constants.FullLayoutTime),
+			Description:  Constants.Desc3PartyLogging,
+			DataRequest:  string(dataRequest),
+			DataResponse: string(dataResponse),
+		}
+
+		logData, _ := json.Marshal(dataLog)
+		jsonDataLog := string(logData)
+
+		Helpers.PubLoggingCloud(jsonDataRequest, jsonDataResponse, jsonDataLog)
+
+	}
+	return response, nil
+}
+
+func (s *Server) SubmitSIKPAkad(ctx context.Context, request *pb.SubmitSIKPAkadRequest) (*pb.SubmitSIKPAkadReponse, error) {
+	t := time.Now()
+	formatDate := t.Format("20060102")
+	logJoin := []string{"logs", "/", "services", "/", "3party", "/", "log", "-", formatDate, ".log"}
+	logFile := strings.Join(logJoin, "")
+	_, err := os.Stat(logFile)
+
+	//check exist file log
+	f, _ := os.OpenFile(logFile, os.O_RDWR|os.O_APPEND, 0755)
+	if os.IsNotExist(err) {
+		f, _ = os.OpenFile(logFile, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0755)
+
+	}
+	// Use the following code if you need to write the logs to file and console at the same time.
+	gin.DefaultWriter = io.MultiWriter(f, os.Stdout)
+
+	log.SetOutput(gin.DefaultWriter)
+
+	response := &pb.SubmitSIKPAkadReponse{
+		Status:              0,
+		Message:             "-",
+		MessageLocal:        "-",
+		EmbedSubmitSIKPAkad: nil,
+	}
+
+	typeLog := ""
+	//REQUEST PARAMETER
+	Nik := request.GetNik()
+	Rekeninglama := request.GetRekeninglama()
+	Rekeningbaru := request.GetRekeningbaru()
+	Statusakad := request.GetStatusakad()
+	Statusrekening := request.GetStatusrekening()
+	Nomorakad := request.GetNomorakad()
+	Tglakad := request.GetTglakad()
+	Tgljatuhtempo := request.GetTgljatuhtempo()
+	Nilaiakad := request.GetNilaiakad()
+	Kodepenjamin := request.GetKodepenjamin()
+	Nomorpenjaminan := request.GetNomorpenjaminan()
+	Nilaidijamin := request.GetNilaidijamin()
+	Skema := request.GetSkema()
+	Sektor := request.GetSektor()
+	Negaratujuan := request.GetNegaratujuan()
+
+	//REQUEST FOR LOGGING
+	requestData := map[string]interface{}{
+		"Nik":             Nik,
+		"Rekeninglama":    Rekeninglama,
+		"Rekeningbaru":    Rekeningbaru,
+		"Statusakad":      Statusakad,
+		"Statusrekening":  Statusrekening,
+		"Nomorakad":       Nomorakad,
+		"Tglakad":         Tglakad,
+		"Tgljatuhtempo":   Tgljatuhtempo,
+		"Nilaiakad":       Nilaiakad,
+		"Kodepenjamin":    Kodepenjamin,
+		"Nomorpenjaminan": Nomorpenjaminan,
+		"Nilaidijamin":    Nilaidijamin,
+		"Skema":           Skema,
+		"Sektor":          Sektor,
+		"Negaratujuan":    Negaratujuan,
+	}
+
+	dataRequest, _ := json.Marshal(requestData)
+	jsonDataRequest := string(dataRequest)
+
+	//DECODE PARAMETER
+
+	//CURL Submit SKIP Transaksi
+	typeLog = "curl-submit-sikp-akad"
+
+	params := Helpers.CurlSubmitSIKPAkadParams{
+		Nik:             "",
+		Rekeninglama:    "",
+		Rekeningbaru:    "",
+		Statusakad:      "",
+		Statusrekening:  "",
+		Nomorakad:       "",
+		Tglakad:         "",
+		Tgljatuhtempo:   "",
+		Nilaiakad:       "",
+		Kodepenjamin:    "",
+		Nomorpenjaminan: "",
+		Nilaidijamin:    "",
+		Skema:           "",
+		Sektor:          "",
+		Negaratujuan:    "",
+	}
+
+	var responseResult Helpers.CurlSubmitSIKPAkadResponse
+	var dataResult Helpers.CurlSubmitSIKPAkadMapping
+	responseResult, dataResult = Helpers.CurlSubmitSIKPAkad(params)
+
+	log.Println("Service ** RESULT QUERY Submit SKIP Transaksi **")
+	log.Println(responseResult)
+	log.Println(dataResult)
+
+	//response success
+	if responseResult.Status != 200 {
+		response = &pb.SubmitSIKPAkadReponse{
+			Status:              int64(responseResult.Status),
+			Message:             responseResult.Message,
+			MessageLocal:        responseResult.MessageLocal,
+			EmbedSubmitSIKPAkad: nil,
+		}
+
+		//PROCESS TO LOGGING CLOUD
+		{
+			// DATA RESPONSE
+			strStatusCode, _ := Helpers.IntString(400)
+			responseData := map[string]interface{}{
+				"statusCode":   strStatusCode,
+				"responseData": response,
+			}
+
+			dataResponse, _ := json.Marshal(responseData)
+			jsonDataResponse := string(dataResponse)
+
+			dataLog := Config.LoggingCloudPubSub{
+				Status:       "400",
+				TypeLog:      typeLog,
+				Endpoint:     Constants.EndpointSubmitSIKPAkad,
+				UserId:       "",
+				ActionDate:   time.Now().Format(Constants.FullLayoutTime),
+				Description:  Constants.Desc3PartyLogging,
+				DataRequest:  string(dataRequest),
+				DataResponse: string(dataResponse),
+			}
+
+			logData, _ := json.Marshal(dataLog)
+			jsonDataLog := string(logData)
+
+			Helpers.PubLoggingCloud(jsonDataRequest, jsonDataResponse, jsonDataLog)
+
+		}
+		return response, nil
+
+	}
+
+	//response success
+	typeLog = "success-submit-sikp-akad"
+
+	intStatusCode, _ := Helpers.StringInt(dataResult.Body.Response.Result.Code)
+
+	var resultData []*pb.DataSubmitSIKPAkad
+
+	error := dataResult.Body.Response.Result.Error
+	code := dataResult.Body.Response.Result.Code
+	message := dataResult.Body.Response.Result.Message
+
+	data := pb.DataSubmitSIKPAkad{
+		Code:    code,
+		Error:   error,
+		Message: message,
+	}
+	resultData = append(resultData, &data)
+
+	response = &pb.SubmitSIKPAkadReponse{
+		Status:       200,
+		Message:      responseResult.Message,
+		MessageLocal: responseResult.MessageLocal,
+		EmbedSubmitSIKPAkad: &pb.EmbedSubmitSIKPAkad{
+			StatusCode:         int64(intStatusCode),
+			StatusDescription:  dataResult.Body.Response.Result.Message,
+			DataSubmitSIKPAkad: resultData,
+		},
+	}
+
+	//PROCESS TO LOGGING CLOUD
+	{
+		// DATA RESPONSE
+		strStatusCode, _ := Helpers.IntString(400)
+		responseData := map[string]interface{}{
+			"statusCode":   strStatusCode,
+			"responseData": response,
+		}
+
+		dataResponse, _ := json.Marshal(responseData)
+		jsonDataResponse := string(dataResponse)
+
+		dataLog := Config.LoggingCloudPubSub{
+			Status:       "200",
+			TypeLog:      typeLog,
+			Endpoint:     Constants.EndpointSubmitSIKPAkad,
 			UserId:       "",
 			ActionDate:   time.Now().Format(Constants.FullLayoutTime),
 			Description:  Constants.Desc3PartyLogging,

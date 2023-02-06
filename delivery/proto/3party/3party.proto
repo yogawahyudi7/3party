@@ -64,13 +64,13 @@ message DataCheckPlafondSIKP {
 }
 
 message SubmitSIKPTransaksiRequest {
-string NomorRekening = 1;
-string TglTransaksi = 2;
-string TglPelaporan = 3;
-string Limit = 4;
-string Outstanding = 5;
-string AngsuranPokok = 6;
-string Kolektibilitas = 7;
+    string NomorRekening = 1;
+    string TglTransaksi = 2;
+    string TglPelaporan = 3;
+    string Limit = 4;
+    string Outstanding = 5;
+    string AngsuranPokok = 6;
+    string Kolektibilitas = 7;
 }
 
 message SubmitSIKPTransaksiReponse {
@@ -92,6 +92,43 @@ message DataSubmitSIKPTransaksi {
     string message = 3;
 }
 
+
+message SubmitSIKPAkadRequest {
+    string Nik = 1;
+    string Rekeninglama = 2;
+    string Rekeningbaru = 3;
+    string Statusakad = 4;
+    string Statusrekening = 5;
+    string Nomorakad = 6;
+    string Tglakad = 7;
+    string Tgljatuhtempo = 8;
+    string Nilaiakad = 9;
+    string Kodepenjamin = 10;
+    string Nomorpenjaminan = 11;
+    string Nilaidijamin = 12;
+    string Skema = 13;
+    string Sektor = 14;
+    string Negaratujuan = 15;
+}
+
+message SubmitSIKPAkadReponse {
+    int64 status = 1;
+    string message = 2;
+    string messageLocal = 3;
+
+    EmbedSubmitSIKPAkad EmbedSubmitSIKPAkad = 4;
+}
+message EmbedSubmitSIKPAkad {
+    int64 statusCode = 1;
+    string statusDescription = 2;
+
+    repeated DataSubmitSIKPAkad DataSubmitSIKPAkad = 3;
+}
+message DataSubmitSIKPAkad {
+    bool error = 2;
+    string code = 1;
+    string message = 3;
+}
 //========================== Region Jamkrindo ============================ //
 
 // Jamkrindo Klaim
@@ -234,6 +271,7 @@ service ThirdPartyService {
     rpc VerificationSIKP (VerificationSIKPRequest) returns (VerificationSIKPReponse);
     rpc CheckPlafondSIKP (CheckPlafondSIKPRequest) returns (CheckPlafondSIKPReponse);
     rpc SubmitSIKPTransaksi (SubmitSIKPTransaksiRequest) returns (SubmitSIKPTransaksiReponse);
+    rpc SubmitSIKPAkad (SubmitSIKPAkadRequest) returns (SubmitSIKPAkadReponse);
 
     //====================== Region Jamkrindo ==============================//
     rpc SubmitJamkrindoCalon (SubmitJamkrindoCalonRequest) returns (SubmitJamkrindoCalonResponse);

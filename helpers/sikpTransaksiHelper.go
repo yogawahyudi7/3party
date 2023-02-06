@@ -55,20 +55,7 @@ type ResponseSubmitSIKPTransaksi struct {
 }
 
 type ResultSubmitSIKPTransaksi struct {
-	XMLName xml.Name                `xml:"submit_SIKP_TransaksiResult"`
-	Error   bool                    `xml:"error"`
-	Code    string                  `xml:"code"`
-	Message string                  `xml:"message"`
-	Data    DataSubmitSIKPTransaksi `xml:"data"`
-}
-
-type DataSubmitSIKPTransaksi struct {
-	XMLName       xml.Name                      `xml:"data"`
-	DataJamkrindo []SubmitSIKPTransaksiResponse `xml:"submit_SIKP_Transaksi"`
-}
-
-type SubmitSIKPTransaksiResponse struct {
-	XMLName xml.Name `xml:"submit_SIKP_Transaksi"`
+	XMLName xml.Name `xml:"submit_SIKP_TransaksiResult"`
 	Error   bool     `xml:"error"`
 	Code    string   `xml:"code"`
 	Message string   `xml:"message"`
