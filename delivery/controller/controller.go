@@ -1311,3 +1311,182 @@ func (s *Server) JamkrindoKlaim(ctx context.Context, request *pb.JamkrindoKlaimR
 	}
 	return response, nil
 }
+
+func (s *Server) SubmitSIKPTransaksi(ctx context.Context, request *pb.SubmitSIKPTransaksiRequest) (*pb.SubmitSIKPTransaksiReponse, error) {
+	t := time.Now()
+	formatDate := t.Format("20060102")
+	logJoin := []string{"logs", "/", "services", "/", "3party", "/", "log", "-", formatDate, ".log"}
+	logFile := strings.Join(logJoin, "")
+	_, err := os.Stat(logFile)
+
+	//check exist file log
+	f, _ := os.OpenFile(logFile, os.O_RDWR|os.O_APPEND, 0755)
+	if os.IsNotExist(err) {
+		f, _ = os.OpenFile(logFile, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0755)
+
+	}
+	// Use the following code if you need to write the logs to file and console at the same time.
+	gin.DefaultWriter = io.MultiWriter(f, os.Stdout)
+
+	log.SetOutput(gin.DefaultWriter)
+
+	response := &pb.SubmitSIKPTransaksiReponse{
+		Status:                   0,
+		Message:                  "-",
+		MessageLocal:             "-",
+		EmbedSubmitSIKPTransaksi: nil,
+	}
+
+	typeLog := ""
+	//REQUEST PARAMETER
+	NomorRekening := request.GetNomorRekening()
+	TglTransaksi := request.GetTglTransaksi()
+	TglPelaporan := request.GetTglPelaporan()
+	Limit := request.GetLimit()
+	Outstanding := request.GetOutstanding()
+	AngsuranPokok := request.GetAngsuranPokok()
+	Kolektibilitas := request.GetKolektibilitas()
+
+	//REQUEST FOR LOGGING
+	requestData := map[string]interface{}{
+		"NomorRekening":  NomorRekening,
+		"TglTransaksi":   TglTransaksi,
+		"TglPelaporan":   TglPelaporan,
+		"Limit":          Limit,
+		"Outstanding":    Outstanding,
+		"AngsuranPokok":  AngsuranPokok,
+		"Kolektibilitas": Kolektibilitas,
+	}
+
+	dataRequest, _ := json.Marshal(requestData)
+	jsonDataRequest := string(dataRequest)
+
+	//DECODE PARAMETER
+
+	//CURL Submit SKIP Transaksi
+	typeLog = "curl-submit-sikp-transaksi"
+
+	params := Helpers.CurlSubmitSIKPTransaksiParams{
+		NomorRekening:  NomorRekening,
+		TglTransaksi:   TglTransaksi,
+		TglPelaporan:   TglPelaporan,
+		Limit:          Limit,
+		Outstanding:    Outstanding,
+		AngsuranPokok:  AngsuranPokok,
+		Kolektibilitas: Kolektibilitas,
+	}
+
+	var responseResult Helpers.CurlSubmitSIKPTransaksiResponse
+	var dataResult Helpers.CurlSubmitSIKPTransaksiMapping
+	responseResult, dataResult = Helpers.CurlSubmitSIKPTransaksi(params)
+
+	log.Println("Service ** RESULT QUERY Submit SKIP Transaksi **")
+	log.Println(responseResult)
+	log.Println(dataResult)
+
+	//response success
+	if responseResult.Status != 200 {
+		response = &pb.SubmitSIKPTransaksiReponse{
+			Status:                   int64(responseResult.Status),
+			Message:                  responseResult.Message,
+			MessageLocal:             responseResult.MessageLocal,
+			EmbedSubmitSIKPTransaksi: nil,
+		}
+
+		//PROCESS TO LOGGING CLOUD
+		{
+			// DATA RESPONSE
+			strStatusCode, _ := Helpers.IntString(400)
+			responseData := map[string]interface{}{
+				"statusCode":   strStatusCode,
+				"responseData": response,
+			}
+
+			dataResponse, _ := json.Marshal(responseData)
+			jsonDataResponse := string(dataResponse)
+
+			dataLog := Config.LoggingCloudPubSub{
+				Status:       "400",
+				TypeLog:      typeLog,
+				Endpoint:     Constants.EndpointSubmitSIKPTransaksi,
+				UserId:       "",
+				ActionDate:   time.Now().Format(Constants.FullLayoutTime),
+				Description:  Constants.Desc3PartyLogging,
+				DataRequest:  string(dataRequest),
+				DataResponse: string(dataResponse),
+			}
+
+			logData, _ := json.Marshal(dataLog)
+			jsonDataLog := string(logData)
+
+			Helpers.PubLoggingCloud(jsonDataRequest, jsonDataResponse, jsonDataLog)
+
+		}
+		return response, nil
+
+	}
+
+	//response success
+	typeLog = "success-submit-sikp-transaksi"
+
+	intStatusCode, _ := Helpers.StringInt(dataResult.Body.Response.Result.Code)
+
+	var resultData []*pb.DataSubmitSIKPTransaksi
+	for _, vData := range dataResult.Body.Response.Result.Data.DataJamkrindo {
+
+		error := vData.Error
+		code := vData.Code
+		message := vData.Message
+
+		data := pb.DataSubmitSIKPTransaksi{
+			Code:    code,
+			Error:   error,
+			Message: message,
+		}
+
+		resultData = append(resultData, &data)
+
+	}
+
+	response = &pb.SubmitSIKPTransaksiReponse{
+		Status:       200,
+		Message:      responseResult.Message,
+		MessageLocal: responseResult.MessageLocal,
+		EmbedSubmitSIKPTransaksi: &pb.EmbedSubmitSIKPTransaksi{
+			StatusCode:              int64(intStatusCode),
+			StatusDescription:       dataResult.Body.Response.Result.Message,
+			DataSubmitSIKPTransaksi: resultData,
+		},
+	}
+
+	//PROCESS TO LOGGING CLOUD
+	{
+		// DATA RESPONSE
+		strStatusCode, _ := Helpers.IntString(400)
+		responseData := map[string]interface{}{
+			"statusCode":   strStatusCode,
+			"responseData": response,
+		}
+
+		dataResponse, _ := json.Marshal(responseData)
+		jsonDataResponse := string(dataResponse)
+
+		dataLog := Config.LoggingCloudPubSub{
+			Status:       "200",
+			TypeLog:      typeLog,
+			Endpoint:     Constants.EndpointSubmitSIKPTransaksi,
+			UserId:       "",
+			ActionDate:   time.Now().Format(Constants.FullLayoutTime),
+			Description:  Constants.Desc3PartyLogging,
+			DataRequest:  string(dataRequest),
+			DataResponse: string(dataResponse),
+		}
+
+		logData, _ := json.Marshal(dataLog)
+		jsonDataLog := string(logData)
+
+		Helpers.PubLoggingCloud(jsonDataRequest, jsonDataResponse, jsonDataLog)
+
+	}
+	return response, nil
+}
