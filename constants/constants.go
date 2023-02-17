@@ -11,6 +11,7 @@ const (
 	CURLHeaderContentTypeValueTextXML = "text/xml; charset=utf-8"
 	CURLHeaderCacheControl            = "Cache-Control"
 	CURLHeaderCacheControlValue       = "no-cache"
+	CURLHeaderAuthorization           = "Authorization"
 
 	Timezone           = "Asia/Jakarta"
 	FullLayoutTime     = "2006-01-02 15:04:05.000"
@@ -30,6 +31,8 @@ const (
 	//ENDPOINT
 	EndpointSIKPVerification = "/v/1/sikp/verification"
 	EndpointSIKPCheckPlafond = "/v/1/sikp/check-plafond"
+	EndpointSICDLogs         = "/v/1/sicd-logs/list"
+	EndpointRequestToken     = "/request-token"
 
 	DataFoundMessage       = "Data Ditemukan."
 	DataNotFoundMessage    = "Data Tidak Ditemukan."
@@ -37,4 +40,11 @@ const (
 	FailedProccessMessage  = "Failed Process."
 	MessageOutOfService    = "Maaf, Untuk saat ini kamu belum bisa mengirimkan data mitramu karena sudah melewati masa operational kami diatas jam 23.00 WIB. Kamu dapat mengirimkan kembali pukul 06.00 WIB. Terima kasih."
 	ErorrGeneralMessage    = "Maaf, Server sedang dalam perbaikan. Silahkan coba beberapa saat lagi."
+
+	TextLoggingDataResponse = "Logging ** DATA RESPONSE **"
+	TextLoggingDataRequest  = "Logging ** DATA REQUEST **"
+
+	//DGA PARAMS
+	BackendUsernameDGAParams = "backendUsername"
+	BackendPasswordDGAParams = "backendPassword"
 )

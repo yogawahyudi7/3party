@@ -26,6 +26,7 @@ type ThirdPartyServiceClient interface {
 	//SIKP
 	VerificationSIKP(ctx context.Context, in *VerificationSIKPRequest, opts ...grpc.CallOption) (*VerificationSIKPReponse, error)
 	CheckPlafondSIKP(ctx context.Context, in *CheckPlafondSIKPRequest, opts ...grpc.CallOption) (*CheckPlafondSIKPReponse, error)
+	VerificationSICD(ctx context.Context, in *VerificationSICDRequest, opts ...grpc.CallOption) (*VerificationSICDReponse, error)
 }
 
 type thirdPartyServiceClient struct {
@@ -63,6 +64,15 @@ func (c *thirdPartyServiceClient) CheckPlafondSIKP(ctx context.Context, in *Chec
 	return out, nil
 }
 
+func (c *thirdPartyServiceClient) VerificationSICD(ctx context.Context, in *VerificationSICDRequest, opts ...grpc.CallOption) (*VerificationSICDReponse, error) {
+	out := new(VerificationSICDReponse)
+	err := c.cc.Invoke(ctx, "/proto.ThirdPartyService/VerificationSICD", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ThirdPartyServiceServer is the server API for ThirdPartyService service.
 // All implementations must embed UnimplementedThirdPartyServiceServer
 // for forward compatibility
@@ -71,6 +81,7 @@ type ThirdPartyServiceServer interface {
 	//SIKP
 	VerificationSIKP(context.Context, *VerificationSIKPRequest) (*VerificationSIKPReponse, error)
 	CheckPlafondSIKP(context.Context, *CheckPlafondSIKPRequest) (*CheckPlafondSIKPReponse, error)
+	VerificationSICD(context.Context, *VerificationSICDRequest) (*VerificationSICDReponse, error)
 	mustEmbedUnimplementedThirdPartyServiceServer()
 }
 
@@ -86,6 +97,9 @@ func (UnimplementedThirdPartyServiceServer) VerificationSIKP(context.Context, *V
 }
 func (UnimplementedThirdPartyServiceServer) CheckPlafondSIKP(context.Context, *CheckPlafondSIKPRequest) (*CheckPlafondSIKPReponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CheckPlafondSIKP not implemented")
+}
+func (UnimplementedThirdPartyServiceServer) VerificationSICD(context.Context, *VerificationSICDRequest) (*VerificationSICDReponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method VerificationSICD not implemented")
 }
 func (UnimplementedThirdPartyServiceServer) mustEmbedUnimplementedThirdPartyServiceServer() {}
 
@@ -154,6 +168,24 @@ func _ThirdPartyService_CheckPlafondSIKP_Handler(srv interface{}, ctx context.Co
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ThirdPartyService_VerificationSICD_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(VerificationSICDRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ThirdPartyServiceServer).VerificationSICD(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.ThirdPartyService/VerificationSICD",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ThirdPartyServiceServer).VerificationSICD(ctx, req.(*VerificationSICDRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ThirdPartyService_ServiceDesc is the grpc.ServiceDesc for ThirdPartyService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -172,6 +204,10 @@ var ThirdPartyService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CheckPlafondSIKP",
 			Handler:    _ThirdPartyService_CheckPlafondSIKP_Handler,
+		},
+		{
+			MethodName: "VerificationSICD",
+			Handler:    _ThirdPartyService_VerificationSICD_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

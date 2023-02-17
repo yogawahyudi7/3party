@@ -306,8 +306,8 @@ func NormalizeBase64String(base64 string, mimeType string) (result string, statu
 	return result, 200
 }
 
-func NormalizeDateFormat(text string) (result string, status int) {
-	strSplit := strings.Split(text, "/")
+func DateFormat(text string, separation string) (result string, status int) {
+	strSplit := strings.Split(text, separation)
 	if len(strSplit) != 3 {
 		return "", 400
 	}
@@ -336,4 +336,14 @@ func EncodeStringBase64(text string) (result string, status int) {
 
 	result = string(encodeString)
 	return result, status
+}
+
+func NormalizeDateFormat(text string) (result string, status int) {
+	strSplit := strings.Split(text, "/")
+	if len(strSplit) != 3 {
+		return "", 400
+	}
+	result = fmt.Sprintf("%s-%s-%s", strSplit[2], strSplit[1], strSplit[0])
+
+	return result, 200
 }

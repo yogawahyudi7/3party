@@ -63,6 +63,34 @@ message DataCheckPlafondSIKP {
     int64 bankCode = 7;
 }
 
+message VerificationSICDRequest {
+    string userId = 1;
+    string ktpNumber = 2;
+}
+
+message VerificationSICDReponse {
+    int64 status = 1;
+    string message = 2;
+    string messageLocal = 3;
+
+    EmbedDataVerificationSICD EmbedDataVerificationSICD = 4;
+}
+message EmbedDataVerificationSICD {
+    int64 statusCode = 1;
+    string statusDescription = 2;
+    
+    repeated DataVerificationSICD DataVerificationSICD = 3;
+}
+message DataVerificationSICD {
+    int64 id = 1;
+    int64 prakarsaId = 2;
+    string ktpNumber = 3;
+    string reason = 4;
+    int64 status = 5;
+    string createdAt = 6;
+    string updatedAt = 7;
+}
+
 //SERVICE START
 service ThirdPartyService {
     rpc Testing (TestingRequest) returns (TestingResponse);
@@ -70,4 +98,5 @@ service ThirdPartyService {
     //SIKP
     rpc VerificationSIKP (VerificationSIKPRequest) returns (VerificationSIKPReponse);
     rpc CheckPlafondSIKP (CheckPlafondSIKPRequest) returns (CheckPlafondSIKPReponse);
+    rpc VerificationSICD (VerificationSICDRequest) returns (VerificationSICDReponse);
 }

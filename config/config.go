@@ -260,6 +260,31 @@ func InitAgroAPIDb() (*gorm.DB, error) {
 	return db, nil
 }
 
+func InitAgroDWH() (*gorm.DB, error) {
+	dbHostPikro := os.Getenv("AGRODWH_HOST")
+	dbUserPikro := os.Getenv("AGRODWH_USER")
+	dbPassPikro := os.Getenv("AGRODWH_PASS")
+	dbNamePikro := os.Getenv("AGRODWH_DB")
+
+	dsnString := []string{"sqlserver://", dbUserPikro, ":", dbPassPikro, "@", dbHostPikro, "?database=", dbNamePikro, "&encrypt=disable"} // connection string pikro
+	dsn := strings.Join(dsnString, "")
+
+	// fmt.Println("--CONNECTION STRING--")
+	// fmt.Println(dsn)
+
+	db, err := gorm.Open(sqlserver.Open(dsn), &gorm.Config{}) // open connection pinang mikro db
+
+	if err != nil {
+		return nil, err
+	}
+
+	db.Logger.LogMode(logger.Info)
+
+	db.Use(dbresolver.Register(dbresolver.Config{}).SetMaxIdleConns(50).SetMaxOpenConns(100).SetConnMaxLifetime(time.Hour))
+
+	return db, nil
+}
+
 func InitRedisConnection(redisDb string) (rdb *redis.Client) {
 	redisUrl, _ := RedisUrl()
 	redisPassword, _ := RedisPassword()
@@ -336,6 +361,24 @@ var TransportConfig *http.Transport = &http.Transport{
 
 func SIKPWebService() (result string, status int) {
 	url := os.Getenv("SIKP_WEB_SERVICE_URL")
+
+	// fmt.Println("--URL API DATA AGRO PRESCREENING--")
+	// fmt.Println(url)
+
+	return url, 200
+}
+
+func APIBEUrl() (result string, status int) {
+	url := os.Getenv("API_BE_URL")
+
+	// fmt.Println("--URL API DATA AGRO PRESCREENING--")
+	// fmt.Println(url)
+
+	return url, 200
+}
+
+func APIDGAIP() (result string, status int) {
+	url := os.Getenv("API_DGA_IP")
 
 	// fmt.Println("--URL API DATA AGRO PRESCREENING--")
 	// fmt.Println(url)

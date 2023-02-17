@@ -439,6 +439,63 @@ func RouterMain() http.Handler {
 			}
 		})
 
+		thirdPartyEndpoint.POST("/sicd/verification", func(ctx *gin.Context) {
+			type DataSICD struct {
+				TanggalPengajuan string `json:"tanggalPencairan"`
+				StatusPengajuan  string `json:"statusPencairan"`
+				StatusPinjaman   string `json:"statusPinjaman"`
+			}
+
+			userId := ctx.DefaultPostForm("userId", "")
+			ktpNumber := ctx.DefaultPostForm("ktpNumber", "")
+
+			fmt.Println("ISER ID", userId)
+			fmt.Println("KTP NUMBER", ktpNumber)
+
+			req := &pb.VerificationSICDRequest{
+				UserId:    userId,
+				KtpNumber: ktpNumber,
+			}
+
+			if response, err := client.VerificationSICD(ctx, req); err == nil {
+				if response.Status == 400 {
+					ctx.JSON(http.StatusBadRequest, gin.H{
+						"status":  response.GetStatus(),
+						"message": response.GetMessage(),
+						"desc":    response.GetMessageLocal(),
+						"data":    nil,
+					})
+					return
+				}
+
+				if response.Status != 200 {
+					ctx.JSON(http.StatusInternalServerError, gin.H{
+						"status":  response.GetStatus(),
+						"message": response.GetMessage(),
+						"desc":    response.GetMessageLocal(),
+						"data":    nil,
+					})
+					return
+				}
+
+				ctx.JSON(http.StatusOK, gin.H{
+					"status":  response.GetStatus(),
+					"message": response.GetMessage(),
+					"desc":    response.GetMessageLocal(),
+					"data":    "HORE",
+				})
+
+				return
+
+			} else {
+				ctx.JSON(http.StatusInternalServerError, gin.H{
+					"status":  500,
+					"message": Constants.ErorrGeneralMessage,
+					"desc":    err.Error(),
+					"data":    nil,
+				})
+			}
+		})
 	}
 	return router
 }
